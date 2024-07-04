@@ -105,11 +105,6 @@
             color: #fff;
         }
 
-        .disabled {
-            pointer-events: none;
-            opacity: 0.5;
-        }
-
         /* Стили для модального окна */
         .modal {
             display: none; /* Скрыто по умолчанию */
@@ -175,9 +170,7 @@
             Улучшение
         </button>
 
-        <button id="resetButton" onclick="confirmReset()">
-            Сбросить монеты и улучшение тапа
-        </button>
+        <button id="resetButton" onclick="confirmReset()">Сбросить монеты и улучшение тапа</button>
 
         <div class="rest">
             <p id="restMessage"></p>
@@ -188,7 +181,7 @@
     <div id="confirmModal" class="modal">
         <div class="modal-content">
             <h2>Подтверждение</h2>
-            <p>Вы уверены что хотите сбросить все свои монеты и улучшение тапа? Данные больше нельзя будет восстановить.</p>
+            <p>Вы уверены что хотите сбросить все свои монеты и улучшение тапа? Монеты и улучшения больше нельзя вернуть.</p>
             <button id="confirmYes" class="modal-button">Да</button>
             <button id="confirmNo" class="modal-button">Нет</button>
         </div>
@@ -246,11 +239,7 @@
         }
 
         function confirmReset() {
-            if (coins === 0) {
-                alert('Упс! Ошибка. У вас отсутствуют монеты для их сброса!');
-            } else {
-                document.getElementById('confirmModal').style.display = 'block';
-            }
+            document.getElementById('confirmModal').style.display = 'block';
         }
 
         function closeModal() {
@@ -258,10 +247,8 @@
         }
 
         document.getElementById('confirmYes').addEventListener('click', () => {
-            // Сброс монет
             coins = 0;
-            // Сброс улучшения тапа
-            localStorage.setItem('upgradeCost', 1000); // Устанавливаем стоимость улучшения тапа по умолчанию
+            coinsPerTap = 1;
             updateCoinCount();
             saveToLocalStorage();
             closeModal();
