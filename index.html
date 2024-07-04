@@ -60,8 +60,17 @@
             cursor: pointer;
             background-color: transparent;
             border: none;
-            outline: none;
+            outline: none; /* Убираем обводку при тапе */
             position: relative;
+        }
+
+        @media (max-width: 600px) {
+            button:-webkit-any-link {
+                outline: none;
+            }
+            button:-webkit-any-link:focus-visible {
+                outline: none;
+            }
         }
 
         button svg {
@@ -168,6 +177,12 @@
                     let minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
                     let secondsLeft = Math.floor((timeLeft % (1000 * 60)) / 1000);
                     document.getElementById('timeLeft').innerText = `Осталось до регенерации: ${minutesLeft} мин ${secondsLeft} сек`;
+                    // Восстановление лимита тапов на глазах игрока
+                    tapLimit = 1500 - Math.floor(elapsedTime / (25 * 60 * 1000)) * 1500;
+                    if (tapLimit > 1500) {
+                        tapLimit = 1500;
+                    }
+                    updateTapLimit();
                 } else {
                     document.getElementById('timeLeft').innerText = '';
                 }
@@ -186,20 +201,18 @@
                 document.getElementById('restMessage').innerText = '';
             } else {
                 document.getElementById('restMessage').innerText = 'Ждите регенерации монет.';
-                document.getElementById('timeLeft').innerText = '';
+                startRegenTimer();
             }
         }
 
-        const animateCoin = () => {
-            let coin = document.getElementById('clickButton').querySelector('svg');
-            coin.style.transform = 'scale(1.2)';
-            setTimeout(() => { coin.style.transform = 'scale(1)'; }, 100);
-        }
-
-        const vibrate = () => {
-            if ("vibrate" in navigator) {
-                navigator.vibrate(50);
-            }
+        const startRegenTimer = () => {
+            tapLimit = 0; // Устанавливаем лимит тапов в 0
+            startTime = new Date();
+            regenTime = startTime.getTime() + 25 * 60 * 1000; // 25 минут в миллисекундах
+            localStorage.setItem('startTime', startTime.getTime().toString());
+            localStorage.setItem('regenTime', regenTime.toString());
+            updateTimer();
+            setInterval(updateTimer, 1000); // Запускаем обновление таймера каждую секунду
         }
 
         const saveToLocalStorage = () => {
@@ -211,15 +224,6 @@
             if (regenTime) {
                 localStorage.setItem('regenTime', regenTime.toString());
             }
-        }
-
-        const startRegen = () => {
-            tapLimit = 1500;
-            startTime = new Date();
-            regenTime = startTime.getTime() + 2400000;
-            localStorage.setItem('startTime', startTime.getTime().toString());
-            localStorage.setItem('regenTime', regenTime.toString());
-            updateTapLimit();
         }
 
         const checkRegen = () => {
@@ -244,6 +248,18 @@
         const coinMouseLeave = () => {
             let coin = document.getElementById('clickButton').querySelector('svg');
             coin.style.transform = 'scale(1)';
+        }
+
+        function animateCoin() {
+            let coin = document.getElementById('clickButton').querySelector('svg');
+            coin.style.transform = 'scale(1.2)';
+            setTimeout(() => { coin.style.transform = 'scale(1)'; }, 100);
+        }
+
+        function vibrate() {
+            if ("vibrate" in navigator) {
+                navigator.vibrate(50);
+            }
         }
 
         updateCoinCount();
