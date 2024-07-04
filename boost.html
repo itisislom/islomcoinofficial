@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Список улучшений</title>
+    <title></title>
     <style>
         body {
             background-color: #000;
@@ -72,14 +72,17 @@
         // Получаем текущее количество коинов из localStorage при загрузке страницы
         if (localStorage.getItem('coinsAvailable')) {
             coinsAvailable = parseInt(localStorage.getItem('coinsAvailable'));
+            console.log('Coins available:', coinsAvailable); // Добавим логирование
         }
 
         document.getElementById('upgradeButton').addEventListener('click', function() {
-            if (coinsAvailable >= (upgradeCount + 1) * 1000) {
-                coinsAvailable -= (upgradeCount + 1) * 1000;
+            const cost = (upgradeCount + 1) * 1000;
+            console.log('Upgrade cost:', cost); // Добавим логирование
+            if (coinsAvailable >= cost) {
+                coinsAvailable -= cost;
                 upgradeCount++;
                 coinsPerTap += 3; // Увеличиваем количество коинов за тап на 3
-                this.textContent = `Улучшить тап за ${upgradeCount + 1}К`; // Обновляем текст кнопки
+                this.textContent = `Улучшить тап за ${(upgradeCount + 1) * 1000}К`; // Обновляем текст кнопки
                 updateCoins(); // Вызываем функцию для обновления количества коинов на странице index.html
             } else {
                 document.getElementById('insufficientCoins').style.display = 'block';
@@ -92,6 +95,7 @@
         function updateCoins() {
             // Обновляем количество коинов на странице index.html через localStorage
             localStorage.setItem('coinsAvailable', coinsAvailable);
+            console.log('Updated coins available:', coinsAvailable); // Добавим логирование
         }
     </script>
 </body>
