@@ -51,6 +51,13 @@
             top: 10px;
             left: 10px;
         }
+
+        .copy-message {
+            display: none;
+            margin-top: 10px;
+            font-size: 1em;
+            color: lightgreen;
+        }
     </style>
 </head>
 <body>
@@ -58,13 +65,18 @@
         <a href="index.html" class="button back-button">← Назад</a>
         <h1>Привет! Пригласи своих друзей на нашу игру</h1>
         <button class="button copy-button" onclick="copyLink()">Скопировать ссылку</button>
+        <div class="copy-message" id="copyMessage">Ссылка скопирована!</div>
     </div>
 
     <script>
         function copyLink() {
             const link = 'https://t.me/islomcoinofficial_bot';
             navigator.clipboard.writeText(link).then(() => {
-                alert('Ссылка скопирована!');
+                const copyMessage = document.getElementById('copyMessage');
+                copyMessage.style.display = 'block';
+                setTimeout(() => {
+                    copyMessage.style.display = 'none';
+                }, 2000);
             }).catch(err => {
                 console.error('Ошибка при копировании ссылки: ', err);
             });
