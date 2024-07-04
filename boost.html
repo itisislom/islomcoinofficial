@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Список улучшений</title>
+    <style>
+        body {
+            background-color: #000;
+            color: #FFF;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            position: relative; /* Для позиционирования стрелки */
+        }
+        .upgrade-button {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 24px;
+            font-weight: bold;
+            background-color: #FFF;
+            color: #000;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            margin-top: 50px;
+        }
+        .upgrade-button:hover {
+            background-color: #DDD;
+        }
+        .insufficient-coins {
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: red;
+            display: none; /* Изначально скрыто */
+        }
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 18px;
+            font-weight: bold;
+            background-color: #FFF;
+            color: #000;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            text-decoration: none;
+        }
+        .back-button:hover {
+            background-color: #DDD;
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-button">&larr; Назад</a>
+    <div>
+        <h1>Список улучшений</h1>
+        <button class="upgrade-button" id="upgradeButton">Улучшить тап за 1К</button>
+    </div>
+
+    <div id="insufficientCoins" class="insufficient-coins">
+        Недостаточно коинов
+    </div>
+
+    <script>
+        let upgradeCount = 0; // Начальное количество улучшений
+        let coinsPerTap = 3; // Количество коинов за один тап
+        let coinsAvailable = 0; // Количество доступных коинов на странице index.html
+
+        // Получаем текущее количество коинов из localStorage при загрузке страницы
+        if (localStorage.getItem('coinsAvailable')) {
+            coinsAvailable = parseInt(localStorage.getItem('coinsAvailable'));
+        }
+
+        document.getElementById('upgradeButton').addEventListener('click', function() {
+            if (coinsAvailable >= (upgradeCount + 1) * 1000) {
+                coinsAvailable -= (upgradeCount + 1) * 1000;
+                upgradeCount++;
+                coinsPerTap += 3; // Увеличиваем количество коинов за тап на 3
+                this.textContent = `Улучшить тап за ${upgradeCount + 1}К`; // Обновляем текст кнопки
+                updateCoins(); // Вызываем функцию для обновления количества коинов на странице index.html
+            } else {
+                document.getElementById('insufficientCoins').style.display = 'block';
+                setTimeout(function() {
+                    document.getElementById('insufficientCoins').style.display = 'none';
+                }, 2000); // Скрытие сообщения через 2 секунды
+            }
+        });
+
+        function updateCoins() {
+            // Обновляем количество коинов на странице index.html через localStorage
+            localStorage.setItem('coinsAvailable', coinsAvailable);
+        }
+    </script>
+</body>
+</html>
