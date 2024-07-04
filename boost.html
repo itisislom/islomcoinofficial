@@ -151,6 +151,18 @@
                 localStorage.setItem('upgradeCost', upgradeCost);
             }
 
+            // Проверяем, были ли монеты сброшены на странице index.html
+            const resetUpgradeCostIfNeeded = () => {
+                let currentCoins = parseInt(localStorage.getItem('coins')) || 0;
+                if (currentCoins === 0) {
+                    upgradeCost = 1000;
+                    localStorage.setItem('upgradeCost', upgradeCost);
+                    alert('Стоимость улучшения тапа была сброшена до 1000 монет.');
+                }
+            };
+
+            resetUpgradeCostIfNeeded();
+
             updateCoinCount();
             updateUpgradeCost();
         };
