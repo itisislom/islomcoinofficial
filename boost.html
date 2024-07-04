@@ -80,7 +80,7 @@
         </div>
 
         <div class="upgrade-container">
-            <button id="upgradeButton" class="upgrade-button" onclick="upgradeTap()">Улучшить за <span id="upgradeCost">1000</span> монет</button>
+            <button id="upgradeButton" class="upgrade-button" onclick="upgradeTap()">Улучшить тап за <span id="upgradeCost">1000</span> монет</button>
         </div>
     </div>
 
@@ -102,11 +102,11 @@
                 coins -= upgradeCost;
                 coinsPerTap *= 3;
                 upgradeCost *= 2;
-                saveToLocalStorage();
                 updateCoinCount();
                 updateUpgradeCost();
+                saveToLocalStorage();
             } else {
-                alert('Недостаточно монет для улучшения');
+                alert('Не хватает монет для улучшения!');
             }
         }
 
