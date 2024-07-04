@@ -24,7 +24,6 @@
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
             width: 80%;
             max-width: 400px;
-            position: relative;
         }
 
         .header {
@@ -84,22 +83,19 @@
             opacity: 1;
         }
 
-        #resetButton {
+        #inviteButton, #upgradeButton, #resetButton {
             background-color: #fff;
             color: #000;
             font-weight: bold;
             border-radius: 8px;
             padding: 10px 20px;
-            margin-top: 20px;
+            margin-top: 10px;
             box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
             cursor: pointer;
-            position: fixed;
-            top: 20px;
-            right: 20px;
             transition: transform 0.2s ease;
         }
 
-        #resetButton:hover {
+        #inviteButton:hover, #upgradeButton:hover, #resetButton:hover {
             transform: scale(1.1);
         }
 
@@ -132,9 +128,15 @@
             </button>
         </div>
 
-        <button id="resetButton" onclick="confirmReset()">
-            Сбросить монеты
+        <button id="inviteButton" onclick="redirectToInvitePage()">
+            Пригласить
         </button>
+
+        <button id="upgradeButton" onclick="redirectToBoostPage()">
+            Улучшение
+        </button>
+
+        <button id="resetButton" onclick="confirmReset()">Сбросить монеты</button>
 
         <div class="rest">
             <p id="restMessage"></p>
@@ -184,16 +186,21 @@
             }
         }
 
-        function confirmReset() {
-            if (confirm('Вы уверены, что хотите сбросить все свои монеты? Дальше их нельзя будет вернуть.')) {
-                resetCoins();
-            }
+        function redirectToInvitePage() {
+            window.location.href = "invite.html";
         }
 
-        function resetCoins() {
-            localStorage.removeItem('coins');
-            localStorage.removeItem('coinsPerTap');
-            location.reload(); // Обновляем страницу
+        function redirectToBoostPage() {
+            window.location.href = "boost.html";
+        }
+
+        function confirmReset() {
+            if (confirm('Вы уверены что хотите сбросить все свои монеты? Это действие нельзя отменить.')) {
+                coins = 0;
+                coinsPerTap = 1;
+                updateCoinCount();
+                saveToLocalStorage();
+            }
         }
 
         updateCoinCount();
