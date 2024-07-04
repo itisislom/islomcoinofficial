@@ -66,7 +66,7 @@
             margin-top: 20px;
         }
 
-        .upgrade-button, .reset-button {
+        .upgrade-button {
             background-color: #fff;
             color: #000;
             font-weight: bold;
@@ -79,7 +79,7 @@
             display: inline-block;
         }
 
-        .upgrade-button:hover, .reset-button:hover {
+        .upgrade-button:hover {
             transform: scale(1.1);
         }
 
@@ -132,8 +132,6 @@
         <div class="upgrade-container">
             <button id="upgradeButton" class="upgrade-button" onclick="upgradeTap()">Улучшить тап за <span id="upgradeCost">1000</span> монет</button>
         </div>
-
-        <button class="reset-button" onclick="resetUpgradeCost()">Сбросить улучшение тапа</button>
     </div>
 
     <!-- Модальное окно -->
@@ -168,13 +166,6 @@
             } else {
                 showModal();
             }
-        }
-
-        const resetUpgradeCost = () => {
-            // Здесь было сбрасывание upgradeCost до 1000
-            // Но теперь этот блок кода удален
-            updateUpgradeCost();
-            saveToLocalStorage();
         }
 
         const saveToLocalStorage = () => {
