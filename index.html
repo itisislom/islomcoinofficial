@@ -175,11 +175,10 @@
             let currentTime = new Date();
             if (startTime && regenTime) {
                 let elapsedTime = currentTime - startTime;
-                let timeLeft = regenTime - elapsedTime;
+                let timeLeft = regenTime - currentTime.getTime();
                 if (timeLeft > 0 && tapLimit === 0) {
-                    let minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-                    let secondsLeft = Math.floor((timeLeft % (1000 * 60)) / 1000);
-                    document.getElementById('timeLeft').innerText = `Осталось до регенерации: ${minutesLeft} мин ${secondsLeft} сек`;
+                    let minutesLeft = Math.floor(timeLeft / (1000 * 60));
+                    document.getElementById('timeLeft').innerText = `Осталось до регенерации: ${minutesLeft} мин`;
                 } else {
                     document.getElementById('timeLeft').innerText = '';
                 }
@@ -236,7 +235,7 @@
             if (startTime && regenTime) {
                 let currentTime = new Date();
                 let elapsedTime = currentTime - startTime;
-                if (elapsedTime >= regenTime) {
+                if (elapsedTime >= regenTime - startTime) {
                     tapLimit = 1500;
                     enableClickButton();
                     saveToLocalStorage();
