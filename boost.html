@@ -3,100 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title></title>
+    <title>Улучшение</title>
     <style>
         body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #000;
-            color: #FFF;
-            font-family: Arial, sans-serif;
-            text-align: center;
-            position: relative; /* Для позиционирования стрелки */
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
         }
-        .upgrade-button {
-            display: inline-block;
-            padding: 10px 20px;
+
+        .container {
+            text-align: center;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: rgba(0, 0, 0, 0.5);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            width: 80%;
+            max-width: 400px;
+        }
+
+        .header {
+            margin-bottom: 20px;
             font-size: 24px;
             font-weight: bold;
-            background-color: #FFF;
-            color: #000;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-            margin-top: 50px;
         }
-        .upgrade-button:hover {
-            background-color: #DDD;
+
+        .coins {
+            margin-bottom: 20px;
         }
-        .insufficient-coins {
-            position: fixed;
-            bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: red;
-            display: none; /* Изначально скрыто */
-        }
-        .back-button {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            display: inline-block;
-            padding: 10px 20px;
-            font-size: 18px;
+
+        #coinCount {
+            font-size: 48px;
             font-weight: bold;
-            background-color: #FFF;
-            color: #000;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-            text-decoration: none;
+            color: #ffea00;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
         }
-        .back-button:hover {
-            background-color: #DDD;
+
+        #boostButton {
+            background-color: #fff;
+            color: #000;
+            font-weight: bold;
+            border-radius: 8px;
+            padding: 10px 20px;
+            margin-top: 10px;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        #boostButton:hover {
+            transform: scale(1.1);
+        }
+
+        .rest {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #fff;
+        }
+
+        .disabled {
+            pointer-events: none;
+            opacity: 0.5;
         }
     </style>
 </head>
 <body>
-    <a href="index.html" class="back-button">&larr; Назад</a>
-    <div>
-        <h1>Список улучшений</h1>
-        <button class="upgrade-button" id="upgradeButton">Улучшить тап за 1К</button>
-    </div>
+    <div class="container">
+        <div class="header">
+            <h1>Улучшение</h1>
+        </div>
 
-    <div id="insufficientCoins" class="insufficient-coins">
-        Недостаточно коинов
+        <div class="coins">
+            <h2>Монеты: <span id="coinCount">0</span></h2>
+            <button id="boostButton" onclick="boostCoins()">Улучшить</button>
+        </div>
+
+        <div class="rest">
+            <p id="restMessage"></p>
+        </div>
     </div>
 
     <script>
-        let upgradeCount = 0; // Начальное количество улучшений
-        let coinsPerTap = 3; // Количество коинов за один тап
-        let coinsAvailable = 0; // Количество доступных коинов на странице index.html
+        let coins = parseInt(localStorage.getItem('coins')) || 0;
 
-        // Получаем текущее количество коинов из localStorage при загрузке страницы
-        if (localStorage.getItem('coinsAvailable')) {
-            coinsAvailable = parseInt(localStorage.getItem('coinsAvailable'));
-            console.log('Coins available:', coinsAvailable); // Добавим логирование
+        const updateCoinCount = () => {
+            document.getElementById('coinCount').innerText = coins.toLocaleString('ru-RU');
         }
 
-        document.getElementById('upgradeButton').addEventListener('click', function() {
-            const cost = (upgradeCount + 1) * 1000;
-            console.log('Upgrade cost:', cost); // Добавим логирование
-            if (coinsAvailable >= cost) {
-                coinsAvailable -= cost;
-                upgradeCount++;
-                coinsPerTap += 3; // Увеличиваем количество коинов за тап на 3
-                this.textContent = `Улучшить тап за ${(upgradeCount + 1) * 1000}К`; // Обновляем текст кнопки
-                updateCoins(); // Вызываем функцию для обновления количества коинов на странице index.html
+        const boostCoins = () => {
+            if (coins >= 100) { // Пример стоимости улучшения
+                coins -= 100;
+                localStorage.setItem('coins', coins);
+                updateCoinCount();
+                document.getElementById('restMessage').innerText = 'Улучшение успешно!';
             } else {
-                document.getElementById('insufficientCoins').style.display = 'block';
-                setTimeout(function() {
-                    document.getElementById('insufficientCoins').style.display = 'none';
-                }, 2000); // Скрытие сообщения через 2 секунды
+                document.getElementById('restMessage').innerText = 'Недостаточно монет для улучшения.';
             }
-        });
-
-        function updateCoins() {
-            // Обновляем количество коинов на странице index.html через localStorage
-            localStorage.setItem('coinsAvailable', coinsAvailable);
-            console.log('Updated coins available:', coinsAvailable); // Добавим логирование
         }
+
+        updateCoinCount();
     </script>
 </body>
 </html>
