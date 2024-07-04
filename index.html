@@ -190,6 +190,7 @@
     <script>
         let coins = parseInt(localStorage.getItem('coins')) || 0;
         let coinsPerTap = parseInt(localStorage.getItem('coinsPerTap')) || 1;
+        let upgradeCost = parseInt(localStorage.getItem('upgradeCost')) || 1000;
 
         const updateCoinCount = () => {
             document.getElementById('coinCount').innerText = coins.toLocaleString('ru-RU');
@@ -206,6 +207,7 @@
         const saveToLocalStorage = () => {
             localStorage.setItem('coins', coins);
             localStorage.setItem('coinsPerTap', coinsPerTap);
+            localStorage.setItem('upgradeCost', upgradeCost);
         }
 
         const coinMouseOver = () => {
@@ -249,6 +251,7 @@
         document.getElementById('confirmYes').addEventListener('click', () => {
             coins = 0;
             coinsPerTap = 1;
+            upgradeCost = 1000;
             updateCoinCount();
             saveToLocalStorage();
             closeModal();
