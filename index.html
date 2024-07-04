@@ -43,6 +43,12 @@
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
         }
 
+        #tapCounter {
+            font-size: 16px;
+            margin-top: 10px;
+            color: #fff;
+        }
+
         #timeLeft {
             font-size: 14px;
             color: #fff;
@@ -63,11 +69,7 @@
             height: 200px;
             transition: transform 0.1s ease;
             stroke: none;
-            filter: drop-shadow(0 0 0.2rem rgba(0, 0, 255, 0));
-        }
-
-        button:focus, button:active {
-            outline: none;
+            filter: drop-shadow(0 0 0.2rem rgba(0, 0, 255, 0)); /* Убираем тень хитбокса */
         }
 
         button:hover svg {
@@ -93,7 +95,7 @@
             opacity: 1;
         }
 
-        #inviteButton {
+        #inviteButton, #upgradeButton {
             background-color: #fff;
             color: #000;
             font-weight: bold;
@@ -105,7 +107,7 @@
             transition: transform 0.2s ease;
         }
 
-        #inviteButton:hover {
+        #inviteButton:hover, #upgradeButton:hover {
             transform: scale(1.1);
         }
 
@@ -113,6 +115,11 @@
             margin-top: 20px;
             font-size: 14px;
             color: #fff;
+        }
+
+        .disabled {
+            pointer-events: none;
+            opacity: 0.5;
         }
     </style>
 </head>
@@ -124,6 +131,7 @@
 
         <div class="coins">
             <h2>Монеты: <span id="coinCount">0</span></h2>
+            <div id="tapCounter">Осталось тапов: <span id="tapLimit">1500</span></div>
             <div id="timeLeft"></div>
             <button id="clickButton" onmouseover="coinMouseOver()" onmouseleave="coinMouseLeave()" onclick="clickButtonHandler()">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
@@ -138,6 +146,10 @@
             Пригласить
         </button>
 
+        <button id="upgradeButton" onclick="redirectToBoostPage()">
+            Улучшение
+        </button>
+
         <div class="rest">
             <p id="restMessage"></p>
         </div>
@@ -145,25 +157,112 @@
 
     <script>
         let coins = parseInt(localStorage.getItem('coins')) || 0;
+        let tapLimit = parseInt(localStorage.getItem('tapLimit')) || 1500;
+        let startTime = localStorage.getItem('startTime') ? new Date(parseInt(localStorage.getItem('startTime'))) : null;
+        let regenTime = localStorage.getItem('regenTime') ? parseInt(localStorage.getItem('regenTime')) : null;
 
         const updateCoinCount = () => {
             document.getElementById('coinCount').innerText = coins.toLocaleString('ru-RU');
         }
 
+        const updateTapLimit = () => {
+            document.getElementById('tapLimit').innerText = tapLimit.toLocaleString('ru-RU');
+            if (tapLimit === 0) {
+                disableClickButton();
+                startRegenTimer();
+            } else {
+                enableClickButton();
+            }
+        }
+
+        const updateTimer = () => {
+            let currentTime = new Date();
+            if (startTime && regenTime) {
+                let elapsedTime = currentTime - startTime;
+                let timeLeft = regenTime - elapsedTime;
+                if (timeLeft > 0 && tapLimit === 0) {
+                    let minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                    let secondsLeft = Math.floor((timeLeft % (1000 * 60)) / 1000);
+                    document.getElementById('timeLeft').innerText = `Осталось до регенерации: ${minutesLeft} мин ${secondsLeft} сек`;
+                } else {
+                    document.getElementById('timeLeft').innerText = '';
+                }
+            }
+        }
+
         const clickButtonHandler = () => {
-            coins++;
-            updateCoinCount();
-            saveToLocalStorage();
-            animateCoin();
-            vibrate();
+            if (tapLimit > 0) {
+                coins++;
+                tapLimit--;
+                updateCoinCount();
+                updateTapLimit();
+                saveToLocalStorage();
+                animateCoin();
+                vibrate();
+                document.getElementById('restMessage').innerText = '';
+                if (tapLimit === 0) {
+                    disableClickButton();
+                    startRegenTimer();
+                }
+            } else {
+                document.getElementById('restMessage').innerText = 'Ждите регенерации монет.';
+                disableClickButton();
+            }
+        }
+
+        const startRegenTimer = () => {
+            startTime = new Date();
+            regenTime = startTime.getTime() + 25 * 60 * 1000; // 25 минут в миллисекундах
+            localStorage.setItem('startTime', startTime.getTime().toString());
+            localStorage.setItem('regenTime', regenTime.toString());
+            updateTimer();
+            setInterval(updateTimer, 1000); // Запускаем обновление таймера каждую секунду
+            setTimeout(() => {
+                tapLimit = 1500; // Восстанавливаем лимит тапов через 25 минут
+                enableClickButton();
+                updateTapLimit();
+                saveToLocalStorage();
+            }, 25 * 60 * 1000);
         }
 
         const saveToLocalStorage = () => {
             localStorage.setItem('coins', coins);
+            localStorage.setItem('tapLimit', tapLimit);
+            if (startTime) {
+                localStorage.setItem('startTime', startTime.getTime().toString());
+            }
+            if (regenTime) {
+                localStorage.setItem('regenTime', regenTime.toString());
+            }
+        }
+
+        const checkRegen = () => {
+            if (startTime && regenTime) {
+                let currentTime = new Date();
+                let elapsedTime = currentTime - startTime;
+                if (elapsedTime >= regenTime) {
+                    tapLimit = 1500;
+                    enableClickButton();
+                    saveToLocalStorage();
+                }
+            }
+            updateTapLimit();
+        }
+
+        const disableClickButton = () => {
+            document.getElementById('clickButton').classList.add('disabled');
+        }
+
+        const enableClickButton = () => {
+            document.getElementById('clickButton').classList.remove('disabled');
         }
 
         function redirectToInvitePage() {
             window.location.href = "invite.html";
+        }
+
+        function redirectToBoostPage() {
+            window.location.href = "boost.html";
         }
 
         const coinMouseOver = () => {
@@ -189,6 +288,10 @@
         }
 
         updateCoinCount();
+        updateTapLimit();
+        updateTimer();
+        checkRegen();
+        setInterval(checkRegen, 1000);
     </script>
 </body>
 </html>
