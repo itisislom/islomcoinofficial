@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Улучшение</title>
+    <title>IslomCoin - Улучшения</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -43,26 +43,24 @@
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
         }
 
-        #boostButton {
+        .upgrade-container {
+            margin-top: 20px;
+        }
+
+        .upgrade-button {
             background-color: #fff;
             color: #000;
             font-weight: bold;
             border-radius: 8px;
             padding: 10px 20px;
-            margin-top: 10px;
             box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
             cursor: pointer;
             transition: transform 0.2s ease;
+            margin-top: 10px;
         }
 
-        #boostButton:hover {
+        .upgrade-button:hover {
             transform: scale(1.1);
-        }
-
-        .rest {
-            margin-top: 20px;
-            font-size: 14px;
-            color: #fff;
         }
 
         .disabled {
@@ -74,38 +72,52 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Улучшение</h1>
+            <h1>Улучшения</h1>
         </div>
 
         <div class="coins">
             <h2>Монеты: <span id="coinCount">0</span></h2>
-            <button id="boostButton" onclick="boostCoins()">Улучшить</button>
         </div>
 
-        <div class="rest">
-            <p id="restMessage"></p>
+        <div class="upgrade-container">
+            <button id="upgradeButton" class="upgrade-button" onclick="upgradeTap()">Улучшить за <span id="upgradeCost">1000</span> монет</button>
         </div>
     </div>
 
     <script>
         let coins = parseInt(localStorage.getItem('coins')) || 0;
+        let coinsPerTap = parseInt(localStorage.getItem('coinsPerTap')) || 1;
+        let upgradeCost = parseInt(localStorage.getItem('upgradeCost')) || 1000;
 
         const updateCoinCount = () => {
             document.getElementById('coinCount').innerText = coins.toLocaleString('ru-RU');
         }
 
-        const boostCoins = () => {
-            if (coins >= 100) { // Пример стоимости улучшения
-                coins -= 100;
-                localStorage.setItem('coins', coins);
+        const updateUpgradeCost = () => {
+            document.getElementById('upgradeCost').innerText = upgradeCost.toLocaleString('ru-RU');
+        }
+
+        const upgradeTap = () => {
+            if (coins >= upgradeCost) {
+                coins -= upgradeCost;
+                coinsPerTap *= 3;
+                upgradeCost *= 2;
+                saveToLocalStorage();
                 updateCoinCount();
-                document.getElementById('restMessage').innerText = 'Улучшение успешно!';
+                updateUpgradeCost();
             } else {
-                document.getElementById('restMessage').innerText = 'Недостаточно монет для улучшения.';
+                alert('Недостаточно монет для улучшения');
             }
         }
 
+        const saveToLocalStorage = () => {
+            localStorage.setItem('coins', coins);
+            localStorage.setItem('coinsPerTap', coinsPerTap);
+            localStorage.setItem('upgradeCost', upgradeCost);
+        }
+
         updateCoinCount();
+        updateUpgradeCost();
     </script>
 </body>
 </html>
