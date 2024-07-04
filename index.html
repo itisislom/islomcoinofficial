@@ -60,17 +60,8 @@
             cursor: pointer;
             background-color: transparent;
             border: none;
-            outline: none; /* Убираем обводку при тапе */
+            outline: none;
             position: relative;
-        }
-
-        @media (max-width: 600px) {
-            button:-webkit-any-link {
-                outline: none;
-            }
-            button:-webkit-any-link:focus-visible {
-                outline: none;
-            }
         }
 
         button svg {
@@ -78,6 +69,7 @@
             height: 200px;
             transition: transform 0.1s ease;
             stroke: none;
+            filter: drop-shadow(0 0 0.2rem rgba(0, 0, 255, 0)); /* Убираем тень хитбокса */
         }
 
         button:hover svg {
@@ -177,12 +169,6 @@
                     let minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
                     let secondsLeft = Math.floor((timeLeft % (1000 * 60)) / 1000);
                     document.getElementById('timeLeft').innerText = `Осталось до регенерации: ${minutesLeft} мин ${secondsLeft} сек`;
-                    // Восстановление лимита тапов на глазах игрока
-                    tapLimit = 1500 - Math.floor(elapsedTime / (25 * 60 * 1000)) * 1500;
-                    if (tapLimit > 1500) {
-                        tapLimit = 1500;
-                    }
-                    updateTapLimit();
                 } else {
                     document.getElementById('timeLeft').innerText = '';
                 }
@@ -213,6 +199,10 @@
             localStorage.setItem('regenTime', regenTime.toString());
             updateTimer();
             setInterval(updateTimer, 1000); // Запускаем обновление таймера каждую секунду
+            setTimeout(() => {
+                tapLimit = 1500; // Восстанавливаем лимит тапов через 25 минут
+                updateTapLimit();
+            }, 25 * 60 * 1000);
         }
 
         const saveToLocalStorage = () => {
@@ -231,7 +221,7 @@
                 let currentTime = new Date();
                 let elapsedTime = currentTime - startTime;
                 if (elapsedTime >= regenTime) {
-                    startRegen();
+                    startRegenTimer();
                 }
             }
         }
@@ -266,7 +256,6 @@
         updateTapLimit();
         updateTimer();
         checkRegen();
-        setInterval(updateTimer, 1000);
         setInterval(checkRegen, 1000);
     </script>
 </body>
