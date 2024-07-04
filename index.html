@@ -61,35 +61,37 @@
             background-color: transparent;
             border: none;
             outline: none;
-            position: relative; /* Добавлено для позиционирования псевдоэлемента */
+            position: relative;
         }
 
         button svg {
             width: 200px;
             height: 200px;
-            transition: transform 0.2s ease;
+            transition: transform 0.1s ease;
             stroke: none;
         }
 
         button:hover svg {
-            transform: scale(1.1);
+            transform: scale(1.05);
         }
 
-        button::after {
-            content: '';
+        .coin-overlay {
             position: absolute;
-            top: -5px;
-            left: -5px;
-            width: 210px;
-            height: 210px;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 5px solid transparent;
             border-radius: 50%;
-            background-color: rgba(255, 234, 0, 0.3);
-            transition: transform 0.15s ease;
-            transform: scale(0); /* Начальное состояние */
+            pointer-events: none;
+            transition: transform 0.15s ease-out, opacity 0.15s ease-out;
+            transform: scale(0);
+            opacity: 0;
         }
 
-        button:hover::after {
+        .coin-overlay.active {
             transform: scale(1);
+            opacity: 1;
         }
 
         #inviteButton {
@@ -125,11 +127,12 @@
             <h2>Монеты: <span id="coinCount">0</span></h2>
             <div id="tapCounter">Осталось тапов: <span id="tapLimit">1500</span></div>
             <div id="timeLeft"></div>
-            <button id="clickButton" onclick="clickButtonHandler()">
+            <button id="clickButton" onmouseover="coinMouseOver()" onmouseleave="coinMouseLeave()" onclick="clickButtonHandler()">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
-                    <circle cx="100" cy="100" r="90" fill="#ffea00" stroke="#ffea00" stroke-width="20"/>
+                    <circle cx="100" cy="100" r="90" fill="#ffea00" stroke="transparent" stroke-width="20"/>
                     <text x="50%" y="55%" text-anchor="middle" fill="#4a148c" font-size="72px" font-weight="bold">₪</text>
                 </svg>
+                <div class="coin-overlay" id="coinOverlay"></div>
             </button>
         </div>
 
@@ -178,14 +181,24 @@
                 updateCoinCount();
                 updateTapLimit();
                 saveToLocalStorage();
+                animateCoin();
+                vibrate();
                 document.getElementById('restMessage').innerText = '';
-                document.getElementById('clickButton').classList.add('clicked'); // Добавляем класс для анимации
-                setTimeout(() => {
-                    document.getElementById('clickButton').classList.remove('clicked');
-                }, 50); // Время в миллисекундах для вибрации
             } else {
                 document.getElementById('restMessage').innerText = 'Ждите регенерации монет.';
                 document.getElementById('timeLeft').innerText = '';
+            }
+        }
+
+        const animateCoin = () => {
+            let coin = document.getElementById('clickButton').querySelector('svg');
+            coin.style.transform = 'scale(1.2)';
+            setTimeout(() => { coin.style.transform = 'scale(1)'; }, 100);
+        }
+
+        const vibrate = () => {
+            if ("vibrate" in navigator) {
+                navigator.vibrate(50);
             }
         }
 
@@ -203,7 +216,7 @@
         const startRegen = () => {
             tapLimit = 1500;
             startTime = new Date();
-            regenTime = startTime.getTime() + 2400000; // 2400000 ms = 40 minutes
+            regenTime = startTime.getTime() + 2400000;
             localStorage.setItem('startTime', startTime.getTime().toString());
             localStorage.setItem('regenTime', regenTime.toString());
             updateTapLimit();
@@ -221,6 +234,16 @@
 
         function redirectToInvitePage() {
             window.location.href = "invite.html";
+        }
+
+        const coinMouseOver = () => {
+            let coin = document.getElementById('clickButton').querySelector('svg');
+            coin.style.transform = 'scale(1.05)';
+        }
+
+        const coinMouseLeave = () => {
+            let coin = document.getElementById('clickButton').querySelector('svg');
+            coin.style.transform = 'scale(1)';
         }
 
         updateCoinCount();
