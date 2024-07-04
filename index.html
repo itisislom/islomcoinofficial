@@ -116,6 +116,11 @@
             font-size: 14px;
             color: #fff;
         }
+
+        .disabled {
+            pointer-events: none;
+            opacity: 0.5;
+        }
     </style>
 </head>
 <body>
@@ -158,6 +163,12 @@
 
         const updateTapLimit = () => {
             document.getElementById('tapLimit').innerText = tapLimit.toLocaleString('ru-RU');
+            if (tapLimit === 0) {
+                disableClickButton();
+                startRegenTimer();
+            } else {
+                enableClickButton();
+            }
         }
 
         const updateTimer = () => {
@@ -185,14 +196,17 @@
                 animateCoin();
                 vibrate();
                 document.getElementById('restMessage').innerText = '';
+                if (tapLimit === 0) {
+                    disableClickButton();
+                    startRegenTimer();
+                }
             } else {
                 document.getElementById('restMessage').innerText = 'Ждите регенерации монет.';
-                startRegenTimer();
+                disableClickButton();
             }
         }
 
         const startRegenTimer = () => {
-            tapLimit = 0; // Устанавливаем лимит тапов в 0
             startTime = new Date();
             regenTime = startTime.getTime() + 25 * 60 * 1000; // 25 минут в миллисекундах
             localStorage.setItem('startTime', startTime.getTime().toString());
@@ -201,7 +215,9 @@
             setInterval(updateTimer, 1000); // Запускаем обновление таймера каждую секунду
             setTimeout(() => {
                 tapLimit = 1500; // Восстанавливаем лимит тапов через 25 минут
+                enableClickButton();
                 updateTapLimit();
+                saveToLocalStorage();
             }, 25 * 60 * 1000);
         }
 
@@ -221,9 +237,20 @@
                 let currentTime = new Date();
                 let elapsedTime = currentTime - startTime;
                 if (elapsedTime >= regenTime) {
-                    startRegenTimer();
+                    tapLimit = 1500;
+                    enableClickButton();
+                    saveToLocalStorage();
                 }
             }
+            updateTapLimit();
+        }
+
+        const disableClickButton = () => {
+            document.getElementById('clickButton').classList.add('disabled');
+        }
+
+        const enableClickButton = () => {
+            document.getElementById('clickButton').classList.remove('disabled');
         }
 
         function redirectToInvitePage() {
