@@ -84,33 +84,18 @@
             opacity: 1;
         }
 
-        #inviteButton, #upgradeButton {
-            background-color: #fff;
-            color: #000;
-            font-weight: bold;
-            border-radius: 8px;
-            padding: 10px 20px;
-            margin-top: 10px;
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-            cursor: pointer;
-            transition: transform 0.2s ease;
-        }
-
-        #inviteButton:hover, #upgradeButton:hover {
-            transform: scale(1.1);
-        }
-
         #resetButton {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
             background-color: #fff;
             color: #000;
             font-weight: bold;
             border-radius: 8px;
             padding: 10px 20px;
+            margin-top: 20px;
             box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
             cursor: pointer;
+            position: fixed;
+            top: 20px;
+            right: 20px;
             transition: transform 0.2s ease;
         }
 
@@ -146,14 +131,6 @@
                 <div class="coin-overlay" id="coinOverlay"></div>
             </button>
         </div>
-
-        <button id="inviteButton" onclick="redirectToInvitePage()">
-            Пригласить
-        </button>
-
-        <button id="upgradeButton" onclick="redirectToBoostPage()">
-            Улучшение
-        </button>
 
         <button id="resetButton" onclick="confirmReset()">
             Сбросить монеты
@@ -205,14 +182,6 @@
             if ("vibrate" in navigator) {
                 navigator.vibrate(50);
             }
-        }
-
-        function redirectToInvitePage() {
-            window.location.href = "invite.html";
-        }
-
-        function redirectToBoostPage() {
-            window.location.href = "boost.html";
         }
 
         function confirmReset() {
