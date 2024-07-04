@@ -61,17 +61,35 @@
             background-color: transparent;
             border: none;
             outline: none;
+            position: relative; /* Добавлено для позиционирования псевдоэлемента */
         }
 
         button svg {
             width: 200px;
             height: 200px;
             transition: transform 0.2s ease;
-            stroke: none; /* Убираем обводку вокруг монетки */
+            stroke: none;
         }
 
         button:hover svg {
             transform: scale(1.1);
+        }
+
+        button::after {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            width: 210px;
+            height: 210px;
+            border-radius: 50%;
+            background-color: rgba(255, 234, 0, 0.3);
+            transition: transform 0.15s ease;
+            transform: scale(0); /* Начальное состояние */
+        }
+
+        button:hover::after {
+            transform: scale(1);
         }
 
         #inviteButton {
@@ -143,7 +161,7 @@
             if (startTime && regenTime) {
                 let elapsedTime = currentTime - startTime;
                 let timeLeft = regenTime - elapsedTime;
-                if (timeLeft > 0 && tapLimit === 0) { // Показывать текст только после исчерпания лимита тапов
+                if (timeLeft > 0 && tapLimit === 0) {
                     let minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
                     let secondsLeft = Math.floor((timeLeft % (1000 * 60)) / 1000);
                     document.getElementById('timeLeft').innerText = `Осталось до регенерации: ${minutesLeft} мин ${secondsLeft} сек`;
@@ -160,10 +178,14 @@
                 updateCoinCount();
                 updateTapLimit();
                 saveToLocalStorage();
-                document.getElementById('restMessage').innerText = ''; // Очищаем сообщение о регенерации
+                document.getElementById('restMessage').innerText = '';
+                document.getElementById('clickButton').classList.add('clicked'); // Добавляем класс для анимации
+                setTimeout(() => {
+                    document.getElementById('clickButton').classList.remove('clicked');
+                }, 50); // Время в миллисекундах для вибрации
             } else {
                 document.getElementById('restMessage').innerText = 'Ждите регенерации монет.';
-                document.getElementById('timeLeft').innerText = ''; // Очищаем таймер до регенерации
+                document.getElementById('timeLeft').innerText = '';
             }
         }
 
@@ -201,13 +223,10 @@
             window.location.href = "invite.html";
         }
 
-        // При загрузке страницы
         updateCoinCount();
         updateTapLimit();
         updateTimer();
         checkRegen();
-
-        // Проверяем и обновляем таймеры каждую секунду
         setInterval(updateTimer, 1000);
         setInterval(checkRegen, 1000);
     </script>
