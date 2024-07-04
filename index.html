@@ -24,6 +24,7 @@
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
             width: 80%;
             max-width: 400px;
+            position: relative;
         }
 
         .header {
@@ -83,7 +84,7 @@
             opacity: 1;
         }
 
-        #inviteButton, #upgradeButton {
+        #inviteButton, #upgradeButton, #resetButton {
             background-color: #fff;
             color: #000;
             font-weight: bold;
@@ -95,8 +96,14 @@
             transition: transform 0.2s ease;
         }
 
-        #inviteButton:hover, #upgradeButton:hover {
+        #inviteButton:hover, #upgradeButton:hover, #resetButton:hover {
             transform: scale(1.1);
+        }
+
+        #resetButton {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
         }
 
         .rest {
@@ -134,6 +141,10 @@
 
         <button id="upgradeButton" onclick="redirectToBoostPage()">
             Улучшение
+        </button>
+
+        <button id="resetButton" onclick="confirmReset()">
+            Сбросить монеты
         </button>
 
         <div class="rest">
@@ -190,6 +201,18 @@
 
         function redirectToBoostPage() {
             window.location.href = "boost.html";
+        }
+
+        function confirmReset() {
+            if (confirm('Вы уверены, что хотите сбросить все свои монеты? Дальше их нельзя будет вернуть.')) {
+                resetCoins();
+            }
+        }
+
+        function resetCoins() {
+            localStorage.removeItem('coins');
+            localStorage.removeItem('coinsPerTap');
+            location.reload(); // Обновляем страницу
         }
 
         updateCoinCount();
