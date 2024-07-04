@@ -27,7 +27,7 @@
             margin-bottom: 20px;
         }
 
-        .copy-button {
+        .button {
             background-color: gray;
             border: none;
             border-radius: 12px;
@@ -35,17 +35,29 @@
             color: white;
             font-size: 1em;
             cursor: pointer;
+            margin: 10px 0;
+            text-decoration: none;
+            display: inline-block;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Text shadow added */
         }
 
-        .copy-button:hover {
+        .button:hover {
             background-color: darkgray;
+        }
+
+        .back-button {
+            font-weight: bold;
+            position: absolute;
+            top: 10px;
+            left: 10px;
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <a href="index.html" class="button back-button">← Назад</a>
         <h1>Привет! Пригласи своих друзей на нашу игру</h1>
-        <button class="copy-button" onclick="copyLink()">Скопировать ссылку</button>
+        <button class="button copy-button" onclick="copyLink()">Скопировать ссылку</button>
     </div>
 
     <script>
