@@ -246,7 +246,11 @@
         }
 
         function confirmReset() {
-            document.getElementById('confirmModal').style.display = 'block';
+            if (coins === 0) {
+                alert('Упс! Ошибка. У вас отсутствуют монеты для их сброса!');
+            } else {
+                document.getElementById('confirmModal').style.display = 'block';
+            }
         }
 
         function closeModal() {
