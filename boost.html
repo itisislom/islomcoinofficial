@@ -140,22 +140,19 @@
             window.location.href = 'index.html';
         }
 
-        updateCoinCount();
-        updateUpgradeCost();
-
         // Проверяем и восстанавливаем улучшение за тап до 1000 монет при необходимости
         window.onload = () => {
-            const resetUpgradeTapIfNeeded = () => {
-                let currentUpgradeCost = parseInt(localStorage.getItem('upgradeCost')) || 1000;
-                if (currentUpgradeCost !== 1000) {
-                    localStorage.setItem('upgradeCost', 1000);
-                    upgradeCost = 1000;
-                    updateUpgradeCost();
-                    alert('Улучшение за тап было восстановлено до 1000 монет.');
-                }
-            };
+            // Проверяем, были ли уже сохранены значения, если да, то не меняем их
+            if (localStorage.getItem('coinsPerTap') && localStorage.getItem('upgradeCost')) {
+                coinsPerTap = parseInt(localStorage.getItem('coinsPerTap'));
+                upgradeCost = parseInt(localStorage.getItem('upgradeCost'));
+            } else {
+                localStorage.setItem('coinsPerTap', coinsPerTap);
+                localStorage.setItem('upgradeCost', upgradeCost);
+            }
 
-            resetUpgradeTapIfNeeded();
+            updateCoinCount();
+            updateUpgradeCost();
         };
     </script>
 </body>
