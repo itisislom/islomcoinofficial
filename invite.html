@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Пригласи друзей</title>
+    <style>
+        body {
+            background-color: black;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+
+        .container {
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .container h1 {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .copy-button {
+            background-color: gray;
+            border: none;
+            border-radius: 12px;
+            padding: 10px 20px;
+            color: white;
+            font-size: 1em;
+            cursor: pointer;
+        }
+
+        .copy-button:hover {
+            background-color: darkgray;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Привет! Пригласи своих друзей на нашу игру</h1>
+        <button class="copy-button" onclick="copyLink()">Скопировать ссылку</button>
+    </div>
+
+    <script>
+        function copyLink() {
+            const link = 'https://t.me/islomcoinofficial_bot';
+            navigator.clipboard.writeText(link).then(() => {
+                alert('Ссылка скопирована!');
+            }).catch(err => {
+                console.error('Ошибка при копировании ссылки: ', err);
+            });
+        }
+    </script>
+</body>
+</html>
