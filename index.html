@@ -187,6 +187,15 @@
         </div>
     </div>
 
+    <!-- Модальное окно ошибки -->
+    <div id="errorModal" class="modal">
+        <div class="modal-content">
+            <h2>Ошибка!</h2>
+            <p>У вас и так 0 монеток IslomCoins!</p>
+            <button id="errorClose" class="modal-button" onclick="closeModal()">Продолжить</button>
+        </div>
+    </div>
+
     <script>
         let coins = parseInt(localStorage.getItem('coins')) || 0;
         let coinsPerTap = parseInt(localStorage.getItem('coinsPerTap')) || 1;
@@ -241,17 +250,23 @@
         }
 
         function confirmReset() {
-            document.getElementById('confirmModal').style.display = 'block';
+            if (coins === 0) {
+                // Показываем модальное окно с ошибкой
+                document.getElementById('errorModal').style.display = 'block';
+            } else {
+                document.getElementById('confirmModal').style.display = 'block';
+            }
         }
 
         function closeModal() {
             document.getElementById('confirmModal').style.display = 'none';
+            document.getElementById('errorModal').style.display = 'none'; // Закрываем оба модальных окна
         }
 
         document.getElementById('confirmYes').addEventListener('click', () => {
             coins = 0;
-            coinsPerTap = 1;
-            upgradeCost = 1000;
+            coinsPerTap = 1; // Возвращаем стандартное значение
+            upgradeCost = 1000; // Возвращаем стандартное значение
             updateCoinCount();
             saveToLocalStorage();
             closeModal();
@@ -261,7 +276,22 @@
             closeModal();
         });
 
+        document.getElementById('errorClose').addEventListener('click', () => {
+            closeModal();
+        });
+
+        // Проверяем, есть ли сохраненные данные и обновляем отображение
         updateCoinCount();
+
+        // Загрузка сохраненных данных при первой загрузке страницы
+        function loadFromLocalStorage() {
+            coins = parseInt(localStorage.getItem('coins')) || 0;
+            coinsPerTap = parseInt(localStorage.getItem('coinsPerTap')) || 1;
+            upgradeCost = parseInt(localStorage.getItem('upgradeCost')) || 1000;
+        }
+
+        loadFromLocalStorage();
+
     </script>
 </body>
 </html>
