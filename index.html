@@ -175,7 +175,9 @@
             Улучшение
         </button>
 
-        <button id="resetButton" onclick="confirmReset()">Сбросить монеты</button>
+        <button id="resetButton" onclick="confirmReset()">
+            Сбросить монеты и улучшение тапа
+        </button>
 
         <div class="rest">
             <p id="restMessage"></p>
@@ -186,7 +188,7 @@
     <div id="confirmModal" class="modal">
         <div class="modal-content">
             <h2>Подтверждение</h2>
-            <p>Вы уверены что хотите сбросить все свои монеты? Монеты больше нельзя вернуть.</p>
+            <p>Вы уверены что хотите сбросить все свои монеты и улучшение тапа? Данные больше нельзя будет восстановить.</p>
             <button id="confirmYes" class="modal-button">Да</button>
             <button id="confirmNo" class="modal-button">Нет</button>
         </div>
@@ -252,8 +254,10 @@
         }
 
         document.getElementById('confirmYes').addEventListener('click', () => {
+            // Сброс монет
             coins = 0;
-            coinsPerTap = 1;
+            // Сброс улучшения тапа
+            localStorage.setItem('upgradeCost', 1000); // Устанавливаем стоимость улучшения тапа по умолчанию
             updateCoinCount();
             saveToLocalStorage();
             closeModal();
