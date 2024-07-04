@@ -201,12 +201,15 @@
             window.location.href = "invite.html";
         }
 
+        // При загрузке страницы
         updateCoinCount();
         updateTapLimit();
         updateTimer();
         checkRegen();
+
+        // Проверяем и обновляем таймеры каждую секунду
         setInterval(updateTimer, 1000);
-        setInterval(checkRegen, 1000); // Проверяем регенерацию каждую секунду
+        setInterval(checkRegen, 1000);
     </script>
 </body>
 </html>
