@@ -201,17 +201,6 @@
                 localStorage.setItem('upgradeCost', upgradeCost);
             }
 
-            const resetUpgradeCostIfNeeded = () => {
-                let currentCoins = parseInt(localStorage.getItem('coins')) || 0;
-                if (currentCoins === 0) {
-                    upgradeCost = 1000;
-                    localStorage.setItem('upgradeCost', upgradeCost);
-                    showModal(); // Показать модальное окно вместо alert
-                }
-            };
-
-            resetUpgradeCostIfNeeded();
-
             updateCoinCount();
             updateUpgradeCost();
         };
