@@ -66,7 +66,7 @@
             margin-top: 20px;
         }
 
-        .upgrade-button {
+        .upgrade-button, .reset-button {
             background-color: #fff;
             color: #000;
             font-weight: bold;
@@ -76,15 +76,11 @@
             cursor: pointer;
             transition: transform 0.2s ease;
             margin-top: 10px;
+            display: inline-block;
         }
 
-        .upgrade-button:hover {
+        .upgrade-button:hover, .reset-button:hover {
             transform: scale(1.1);
-        }
-
-        .disabled {
-            pointer-events: none;
-            opacity: 0.5;
         }
 
         /* Стили для модального окна */
@@ -136,6 +132,8 @@
         <div class="upgrade-container">
             <button id="upgradeButton" class="upgrade-button" onclick="upgradeTap()">Улучшить тап за <span id="upgradeCost">1000</span> монет</button>
         </div>
+
+        <button class="reset-button" onclick="resetUpgradeCost()">Сбросить улучшение тапа</button>
     </div>
 
     <!-- Модальное окно -->
@@ -170,6 +168,12 @@
             } else {
                 showModal();
             }
+        }
+
+        const resetUpgradeCost = () => {
+            upgradeCost = 1000; // Сбрасываем стоимость улучшения тапа до 1000
+            updateUpgradeCost();
+            saveToLocalStorage();
         }
 
         const saveToLocalStorage = () => {
