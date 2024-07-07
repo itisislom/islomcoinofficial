@@ -60,8 +60,8 @@
             filter: drop-shadow(0 0 0.2rem rgba(0, 0, 255, 0));
         }
 
-        button:hover svg {
-            transform: scale(1.05);
+        button:active svg {
+            transform: scale(1.15);
         }
 
         .coin-overlay {
@@ -152,7 +152,7 @@
 
         <div class="coins">
             <h2>Монеты: <span id="coinCount">0</span></h2>
-            <button id="clickButton" onmouseover="coinMouseOver()" onmouseleave="coinMouseLeave()" onclick="clickButtonHandler()">
+            <button id="clickButton" onmouseover="coinMouseOver()" onmouseleave="coinMouseLeave()" ontouchstart="touchStartHandler(event)" ontouchend="touchEndHandler(event)">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
                     <circle cx="100" cy="100" r="90" fill="#ffea00" stroke="transparent" stroke-width="20"/>
                     <text x="50%" y="55%" text-anchor="middle" fill="#4a148c" font-size="72px" font-weight="bold">₪</text>
@@ -202,8 +202,8 @@
             document.getElementById('coinCount').innerText = coins.toLocaleString('ru-RU');
         }
 
-        const clickButtonHandler = () => {
-            coins += coinsPerTap;
+        const clickButtonHandler = (numTaps = 1) => {
+            coins += coinsPerTap * numTaps;
             updateCoinCount();
             saveToLocalStorage();
             animateCoin();
@@ -226,28 +226,31 @@
             coin.style.transform = 'scale(1)';
         }
 
-        function animateCoin() {
+        const animateCoin = () => {
             let coin = document.getElementById('clickButton').querySelector('svg');
-            coin.style.transition = 'transform 0.2s ease'; // Увеличиваем длительность до 0.2 секунд
-            coin.style.transform = 'scale(1.1)'; // Уменьшаем масштаб до 1.1
-            setTimeout(() => { coin.style.transform = 'scale(1)'; }, 200); // Увеличиваем длительность до 0.2 секунд
+            coin.style.transition = 'transform 0.05s ease'; // Быстрое увеличение
+            coin.style.transform = 'scale(1.2)';
+            setTimeout(() => {
+                coin.style.transition = 'transform 0.2s ease'; // Плавное уменьшение
+                coin.style.transform = 'scale(1)';
+            }, 50);
         }
 
-        function vibrate() {
+        const vibrate = () => {
             if ("vibrate" in navigator) {
                 navigator.vibrate(20); // Уменьшаем продолжительность до 20 миллисекунд
             }
         }
 
-        function redirectToInvitePage() {
+        const redirectToInvitePage = () => {
             window.location.href = "invite.html";
         }
 
-        function redirectToBoostPage() {
+        const redirectToBoostPage = () => {
             window.location.href = "boost.html";
         }
 
-        function confirmReset() {
+        const confirmReset = () => {
             if (coins === 0) {
                 document.getElementById('errorModal').style.display = 'block';
             } else {
@@ -255,7 +258,7 @@
             }
         }
 
-        function closeModal() {
+        const closeModal = () => {
             document.getElementById('confirmModal').style.display = 'none';
             document.getElementById('errorModal').style.display = 'none';
         }
@@ -272,6 +275,18 @@
         document.getElementById('confirmNo').addEventListener('click', () => {
             closeModal();
         });
+
+        const touchStartHandler = (event) => {
+            let numTaps = event.touches.length;
+            clickButtonHandler(numTaps);
+            let coin = document.getElementById('clickButton').querySelector('svg');
+            coin.classList.add('active');
+        }
+
+        const touchEndHandler = (event) => {
+            let coin = document.getElementById('clickButton').querySelector('svg');
+            coin.classList.remove('active');
+        }
 
         updateCoinCount();
     </script>
