@@ -57,7 +57,7 @@
             height: 200px;
             transition: transform 0.1s ease;
             stroke: none;
-            filter: drop-shadow(0 0 0.2rem rgba(0, 0, 255, 0)); /* Убираем тень хитбокса */
+            filter: drop-shadow(0 0 0.2rem rgba(0, 0, 255, 0));
         }
 
         button:hover svg {
@@ -105,11 +105,10 @@
             color: #fff;
         }
 
-        /* Стили для модального окна */
         .modal {
-            display: none; /* Скрыто по умолчанию */
-            position: fixed; 
-            z-index: 1000; 
+            display: none;
+            position: fixed;
+            z-index: 1000;
             left: 0;
             top: 0;
             width: 100%;
@@ -177,17 +176,15 @@
         </div>
     </div>
 
-    <!-- Модальное окно подтверждения -->
     <div id="confirmModal" class="modal">
         <div class="modal-content">
             <h2>Подтверждение</h2>
-            <p>Вы уверены что хотите сбросить все свои монеты и улучшение тапа? Монеты и улучшения больше нельзя вернуть.</p>
+            <p>Вы уверены, что хотите сбросить все свои монеты и улучшение тапа? Монеты и улучшения больше нельзя вернуть.</p>
             <button id="confirmYes" class="modal-button">Да</button>
             <button id="confirmNo" class="modal-button">Нет</button>
         </div>
     </div>
 
-    <!-- Модальное окно ошибки -->
     <div id="errorModal" class="modal">
         <div class="modal-content">
             <h2>Ошибка!</h2>
@@ -231,13 +228,14 @@
 
         function animateCoin() {
             let coin = document.getElementById('clickButton').querySelector('svg');
-            coin.style.transform = 'scale(1.2)';
-            setTimeout(() => { coin.style.transform = 'scale(1)'; }, 100);
+            coin.style.transition = 'transform 0.2s ease'; // Увеличиваем длительность до 0.2 секунд
+            coin.style.transform = 'scale(1.1)'; // Уменьшаем масштаб до 1.1
+            setTimeout(() => { coin.style.transform = 'scale(1)'; }, 200); // Увеличиваем длительность до 0.2 секунд
         }
 
         function vibrate() {
             if ("vibrate" in navigator) {
-                navigator.vibrate(50);
+                navigator.vibrate(20); // Уменьшаем продолжительность до 20 миллисекунд
             }
         }
 
@@ -251,7 +249,6 @@
 
         function confirmReset() {
             if (coins === 0) {
-                // Показываем модальное окно с ошибкой
                 document.getElementById('errorModal').style.display = 'block';
             } else {
                 document.getElementById('confirmModal').style.display = 'block';
@@ -260,13 +257,13 @@
 
         function closeModal() {
             document.getElementById('confirmModal').style.display = 'none';
-            document.getElementById('errorModal').style.display = 'none'; // Закрываем оба модальных окна
+            document.getElementById('errorModal').style.display = 'none';
         }
 
         document.getElementById('confirmYes').addEventListener('click', () => {
             coins = 0;
-            coinsPerTap = 1; // Возвращаем стандартное значение
-            upgradeCost = 1000; // Возвращаем стандартное значение
+            coinsPerTap = 1;
+            upgradeCost = 1000;
             updateCoinCount();
             saveToLocalStorage();
             closeModal();
@@ -276,22 +273,7 @@
             closeModal();
         });
 
-        document.getElementById('errorClose').addEventListener('click', () => {
-            closeModal();
-        });
-
-        // Проверяем, есть ли сохраненные данные и обновляем отображение
         updateCoinCount();
-
-        // Загрузка сохраненных данных при первой загрузке страницы
-        function loadFromLocalStorage() {
-            coins = parseInt(localStorage.getItem('coins')) || 0;
-            coinsPerTap = parseInt(localStorage.getItem('coinsPerTap')) || 1;
-            upgradeCost = parseInt(localStorage.getItem('upgradeCost')) || 1000;
-        }
-
-        loadFromLocalStorage();
-
     </script>
 </body>
 </html>
