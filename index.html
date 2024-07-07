@@ -55,13 +55,13 @@
         button svg {
             width: 200px;
             height: 200px;
-            transition: transform 0.1s ease;
+            transition: transform 0.2s ease; /* Увеличено время анимации */
             stroke: none;
-            filter: drop-shadow(0 0 0.2rem rgba(0, 0, 255, 0));
+            filter: drop-shadow(0 0 0.2rem rgba(0, 0, 255, 0)); /* Убираем тень хитбокса */
         }
 
-        button:active svg {
-            transform: scale(1.15);
+        button:hover svg {
+            transform: scale(1.05);
         }
 
         .coin-overlay {
@@ -105,10 +105,11 @@
             color: #fff;
         }
 
+        /* Стили для модального окна */
         .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
+            display: none; /* Скрыто по умолчанию */
+            position: fixed; 
+            z-index: 1000; 
             left: 0;
             top: 0;
             width: 100%;
@@ -152,7 +153,7 @@
 
         <div class="coins">
             <h2>Монеты: <span id="coinCount">0</span></h2>
-            <button id="clickButton" onmouseover="coinMouseOver()" onmouseleave="coinMouseLeave()" ontouchstart="touchStartHandler(event)" ontouchend="touchEndHandler(event)">
+            <button id="clickButton" onmouseover="coinMouseOver()" onmouseleave="coinMouseLeave()" onclick="clickButtonHandler()">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
                     <circle cx="100" cy="100" r="90" fill="#ffea00" stroke="transparent" stroke-width="20"/>
                     <text x="50%" y="55%" text-anchor="middle" fill="#4a148c" font-size="72px" font-weight="bold">₪</text>
@@ -176,15 +177,17 @@
         </div>
     </div>
 
+    <!-- Модальное окно подтверждения -->
     <div id="confirmModal" class="modal">
         <div class="modal-content">
             <h2>Подтверждение</h2>
-            <p>Вы уверены, что хотите сбросить все свои монеты и улучшение тапа? Монеты и улучшения больше нельзя вернуть.</p>
+            <p>Вы уверены что хотите сбросить все свои монеты и улучшение тапа? Монеты и улучшения больше нельзя вернуть.</p>
             <button id="confirmYes" class="modal-button">Да</button>
             <button id="confirmNo" class="modal-button">Нет</button>
         </div>
     </div>
 
+    <!-- Модальное окно ошибки -->
     <div id="errorModal" class="modal">
         <div class="modal-content">
             <h2>Ошибка!</h2>
@@ -202,11 +205,11 @@
             document.getElementById('coinCount').innerText = coins.toLocaleString('ru-RU');
         }
 
-        const clickButtonHandler = (numTaps = 1) => {
-            coins += coinsPerTap * numTaps;
+        const clickButtonHandler = () => {
+            coins += coinsPerTap;
             updateCoinCount();
             saveToLocalStorage();
-            animateCoin();
+            animateCoinTap();
             vibrate();
         }
 
@@ -226,47 +229,44 @@
             coin.style.transform = 'scale(1)';
         }
 
-        const animateCoin = () => {
+        function animateCoinTap() {
             let coin = document.getElementById('clickButton').querySelector('svg');
-            coin.style.transition = 'transform 0.05s ease'; // Быстрое увеличение
             coin.style.transform = 'scale(1.2)';
-            setTimeout(() => {
-                coin.style.transition = 'transform 0.2s ease'; // Плавное уменьшение
-                coin.style.transform = 'scale(1)';
-            }, 50);
+            setTimeout(() => { coin.style.transform = 'scale(1)'; }, 200); // Увеличено время до 200 мс для плавности
         }
 
-        const vibrate = () => {
+        function vibrate() {
             if ("vibrate" in navigator) {
-                navigator.vibrate(20); // Уменьшаем продолжительность до 20 миллисекунд
+                navigator.vibrate(20); // Уменьшено значение вибрации до 20 мс
             }
         }
 
-        const redirectToInvitePage = () => {
+        function redirectToInvitePage() {
             window.location.href = "invite.html";
         }
 
-        const redirectToBoostPage = () => {
+        function redirectToBoostPage() {
             window.location.href = "boost.html";
         }
 
-        const confirmReset = () => {
+        function confirmReset() {
             if (coins === 0) {
+                // Показываем модальное окно с ошибкой
                 document.getElementById('errorModal').style.display = 'block';
             } else {
                 document.getElementById('confirmModal').style.display = 'block';
             }
         }
 
-        const closeModal = () => {
+        function closeModal() {
             document.getElementById('confirmModal').style.display = 'none';
-            document.getElementById('errorModal').style.display = 'none';
+            document.getElementById('errorModal').style.display = 'none'; // Закрываем оба модальных окна
         }
 
         document.getElementById('confirmYes').addEventListener('click', () => {
             coins = 0;
-            coinsPerTap = 1;
-            upgradeCost = 1000;
+            coinsPerTap = 1; // Возвращаем стандартное значение
+            upgradeCost = 1000; // Возвращаем стандартное значение
             updateCoinCount();
             saveToLocalStorage();
             closeModal();
@@ -276,19 +276,22 @@
             closeModal();
         });
 
-        const touchStartHandler = (event) => {
-            let numTaps = event.touches.length;
-            clickButtonHandler(numTaps);
-            let coin = document.getElementById('clickButton').querySelector('svg');
-            coin.classList.add('active');
-        }
+        document.getElementById('errorClose').addEventListener('click', () => {
+            closeModal();
+        });
 
-        const touchEndHandler = (event) => {
-            let coin = document.getElementById('clickButton').querySelector('svg');
-            coin.classList.remove('active');
-        }
-
+        // Проверяем, есть ли сохраненные данные и обновляем отображение
         updateCoinCount();
+
+        // Загрузка сохраненных данных при первой загрузке страницы
+        function loadFromLocalStorage() {
+            coins = parseInt(localStorage.getItem('coins')) || 0;
+            coinsPerTap = parseInt(localStorage.getItem('coinsPerTap')) || 1;
+            upgradeCost = parseInt(localStorage.getItem('upgradeCost')) || 1000;
+        }
+
+        loadFromLocalStorage();
+
     </script>
 </body>
 </html>
