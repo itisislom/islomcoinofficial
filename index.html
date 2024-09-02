@@ -55,32 +55,13 @@
         button svg {
             width: 200px;
             height: 200px;
-            transition: transform 0.2s ease; /* Увеличено время анимации */
+            transition: transform 0.2s ease;
             stroke: none;
-            filter: drop-shadow(0 0 0.2rem rgba(0, 0, 255, 0)); /* Убираем тень хитбокса */
+            filter: drop-shadow(0 0 0.5rem rgba(0, 0, 0, 0.8)); /* Эффект виньетки */
         }
 
         button:hover svg {
             transform: scale(1.05);
-        }
-
-        .coin-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: 5px solid transparent;
-            border-radius: 50%;
-            pointer-events: none;
-            transition: transform 0.15s ease-out, opacity 0.15s ease-out;
-            transform: scale(0);
-            opacity: 0;
-        }
-
-        .coin-overlay.active {
-            transform: scale(1);
-            opacity: 1;
         }
 
         #inviteButton, #upgradeButton, #resetButton {
@@ -105,11 +86,10 @@
             color: #fff;
         }
 
-        /* Стили для модального окна */
         .modal {
-            display: none; /* Скрыто по умолчанию */
-            position: fixed; 
-            z-index: 1000; 
+            display: none;
+            position: fixed;
+            z-index: 1000;
             left: 0;
             top: 0;
             width: 100%;
@@ -153,12 +133,18 @@
 
         <div class="coins">
             <h2>Монеты: <span id="coinCount">0</span></h2>
-            <button id="clickButton" onmouseover="coinMouseOver()" onmouseleave="coinMouseLeave()" onclick="clickButtonHandler()">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+            <button id="clickButton" onclick="clickButtonHandler(event)">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" id="coinSvg">
+                    <defs>
+                        <radialGradient id="grad1" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" style="stop-color:#fff;stop-opacity:0" />
+                            <stop offset="100%" style="stop-color:#000;stop-opacity:0.6" />
+                        </radialGradient>
+                    </defs>
                     <circle cx="100" cy="100" r="90" fill="#ffea00" stroke="transparent" stroke-width="20"/>
+                    <circle cx="100" cy="100" r="90" fill="url(#grad1)" />
                     <text x="50%" y="55%" text-anchor="middle" fill="#4a148c" font-size="72px" font-weight="bold">₪</text>
                 </svg>
-                <div class="coin-overlay" id="coinOverlay"></div>
             </button>
         </div>
 
@@ -177,7 +163,6 @@
         </div>
     </div>
 
-    <!-- Модальное окно подтверждения -->
     <div id="confirmModal" class="modal">
         <div class="modal-content">
             <h2>Подтверждение</h2>
@@ -187,7 +172,6 @@
         </div>
     </div>
 
-    <!-- Модальное окно ошибки -->
     <div id="errorModal" class="modal">
         <div class="modal-content">
             <h2>Ошибка!</h2>
@@ -205,11 +189,11 @@
             document.getElementById('coinCount').innerText = coins.toLocaleString('ru-RU');
         }
 
-        const clickButtonHandler = () => {
+        const clickButtonHandler = (event) => {
             coins += coinsPerTap;
             updateCoinCount();
             saveToLocalStorage();
-            animateCoinTap();
+            animateCoinTap(event);
             vibrate();
         }
 
@@ -219,25 +203,27 @@
             localStorage.setItem('upgradeCost', upgradeCost);
         }
 
-        const coinMouseOver = () => {
-            let coin = document.getElementById('clickButton').querySelector('svg');
-            coin.style.transform = 'scale(1.05)';
-        }
+        function animateCoinTap(event) {
+            const coinSvg = document.getElementById('coinSvg');
+            const rect = coinSvg.getBoundingClientRect();
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            const clickX = event.clientX - rect.left;
+            const clickY = event.clientY - rect.top;
+            const rotateX = ((clickY - centerY) / centerY) * 10; // Поворот по оси X
+            const rotateY = ((clickX - centerX) / centerX) * -10; // Поворот по оси Y
 
-        const coinMouseLeave = () => {
-            let coin = document.getElementById('clickButton').querySelector('svg');
-            coin.style.transform = 'scale(1)';
-        }
+            coinSvg.style.transition = "transform 0.2s ease";
+            coinSvg.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
 
-        function animateCoinTap() {
-            let coin = document.getElementById('clickButton').querySelector('svg');
-            coin.style.transform = 'scale(1.2)';
-            setTimeout(() => { coin.style.transform = 'scale(1)'; }, 150); // Увеличено время до 150 мс для плавности
+            setTimeout(() => {
+                coinSvg.style.transform = "perspective(1000px) rotateX(0) rotateY(0)";
+            }, 200);
         }
 
         function vibrate() {
             if ("vibrate" in navigator) {
-                navigator.vibrate(20); // Уменьшено значение вибрации до 20 мс
+                navigator.vibrate(20); 
             }
         }
 
@@ -251,7 +237,6 @@
 
         function confirmReset() {
             if (coins === 0) {
-                // Показываем модальное окно с ошибкой
                 document.getElementById('errorModal').style.display = 'block';
             } else {
                 document.getElementById('confirmModal').style.display = 'block';
@@ -260,13 +245,13 @@
 
         function closeModal() {
             document.getElementById('confirmModal').style.display = 'none';
-            document.getElementById('errorModal').style.display = 'none'; // Закрываем оба модальных окна
+            document.getElementById('errorModal').style.display = 'none';
         }
 
         document.getElementById('confirmYes').addEventListener('click', () => {
             coins = 0;
-            coinsPerTap = 1; // Возвращаем стандартное значение
-            upgradeCost = 1000; // Возвращаем стандартное значение
+            coinsPerTap = 1;
+            upgradeCost = 1000;
             updateCoinCount();
             saveToLocalStorage();
             closeModal();
@@ -276,22 +261,7 @@
             closeModal();
         });
 
-        document.getElementById('errorClose').addEventListener('click', () => {
-            closeModal();
-        });
-
-        // Проверяем, есть ли сохраненные данные и обновляем отображение
         updateCoinCount();
-
-        // Загрузка сохраненных данных при первой загрузке страницы
-        function loadFromLocalStorage() {
-            coins = parseInt(localStorage.getItem('coins')) || 0;
-            coinsPerTap = parseInt(localStorage.getItem('coinsPerTap')) || 1;
-            upgradeCost = parseInt(localStorage.getItem('upgradeCost')) || 1000;
-        }
-
-        loadFromLocalStorage();
-
     </script>
 </body>
 </html>
