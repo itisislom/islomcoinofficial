@@ -24,6 +24,7 @@
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
             width: 80%;
             max-width: 400px;
+            position: relative;
         }
 
         .header {
@@ -52,15 +53,14 @@
             position: relative;
         }
 
-        button svg {
+        button img {
             width: 200px;
             height: 200px;
             transition: transform 0.2s ease;
-            stroke: none;
-            filter: drop-shadow(0 0 0.5rem rgba(0, 0, 0, 0.8)); /* Эффект виньетки */
+            filter: drop-shadow(0 0 0.5rem rgba(0, 0, 0, 0.8));
         }
 
-        button:hover svg {
+        button:hover img {
             transform: scale(1.05);
         }
 
@@ -123,6 +123,35 @@
         .modal-button:hover {
             background-color: #45a049;
         }
+
+        .plus-one {
+            position: absolute;
+            font-size: 24px;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .plus-one.animate {
+            animation: riseAndFade 1s ease-out forwards;
+        }
+
+        @keyframes riseAndFade {
+            0% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+            50% {
+                transform: translateY(-30px);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-60px);
+                opacity: 0;
+            }
+        }
     </style>
 </head>
 <body>
@@ -134,17 +163,7 @@
         <div class="coins">
             <h2>Монеты: <span id="coinCount">0</span></h2>
             <button id="clickButton" onclick="clickButtonHandler(event)">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" id="coinSvg">
-                    <defs>
-                        <radialGradient id="grad1" cx="50%" cy="50%" r="50%">
-                            <stop offset="0%" style="stop-color:#fff;stop-opacity:0" />
-                            <stop offset="100%" style="stop-color:#000;stop-opacity:0.6" />
-                        </radialGradient>
-                    </defs>
-                    <circle cx="100" cy="100" r="90" fill="#ffea00" stroke="transparent" stroke-width="20"/>
-                    <circle cx="100" cy="100" r="90" fill="url(#grad1)" />
-                    <text x="50%" y="55%" text-anchor="middle" fill="#4a148c" font-size="72px" font-weight="bold">₪</text>
-                </svg>
+                <img src="coin.png" alt="Монетка">
             </button>
         </div>
 
@@ -195,6 +214,7 @@
             saveToLocalStorage();
             animateCoinTap(event);
             vibrate();
+            showPlusOneAnimation(event);
         }
 
         const saveToLocalStorage = () => {
@@ -204,43 +224,66 @@
         }
 
         function animateCoinTap(event) {
-            const coinSvg = document.getElementById('coinSvg');
-            const rect = coinSvg.getBoundingClientRect();
+            const coinImg = document.querySelector('button img');
+            const rect = coinImg.getBoundingClientRect();
             const centerX = rect.width / 2;
             const centerY = rect.height / 2;
             const clickX = event.clientX - rect.left;
             const clickY = event.clientY - rect.top;
-            const rotateX = ((clickY - centerY) / centerY) * 10; // Поворот по оси X
-            const rotateY = ((clickX - centerX) / centerX) * -10; // Поворот по оси Y
+            const rotateX = ((clickY - centerY) / centerY) * 10;
+            const rotateY = ((clickX - centerX) / centerX) * -10;
 
-            coinSvg.style.transition = "transform 0.2s ease";
-            coinSvg.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            coinImg.style.transition = "transform 0.2s ease";
+            coinImg.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
 
             setTimeout(() => {
-                coinSvg.style.transform = "perspective(1000px) rotateX(0) rotateY(0)";
+                coinImg.style.transform = "perspective(1000px) rotateX(0) rotateY(0)";
             }, 200);
         }
 
         function vibrate() {
             if ("vibrate" in navigator) {
-                navigator.vibrate(20); 
+                navigator.vibrate(50);
             }
+        }
+
+        function showPlusOneAnimation(event) {
+            const container = document.querySelector('.container');
+            const plusOne = document.createElement('div');
+            plusOne.classList.add('plus-one');
+            plusOne.innerText = '1';
+            container.appendChild(plusOne);
+
+            // Calculate click position relative to container
+            const rect = container.getBoundingClientRect();
+            const clickX = event.clientX - rect.left;
+            const clickY = event.clientY - rect.top;
+
+            // Position the plus-one element
+            plusOne.style.left = `${clickX}px`;
+            plusOne.style.top = `${clickY}px`;
+
+            // Trigger animation
+            requestAnimationFrame(() => {
+                plusOne.classList.add('animate');
+            });
+
+            // Remove element after animation
+            plusOne.addEventListener('animationend', () => {
+                plusOne.remove();
+            });
         }
 
         function redirectToInvitePage() {
-            window.location.href = "invite.html";
+            window.location.href = 'invite.html';
         }
 
         function redirectToBoostPage() {
-            window.location.href = "boost.html";
+            window.location.href = 'boost.html';
         }
 
         function confirmReset() {
-            if (coins === 0) {
-                document.getElementById('errorModal').style.display = 'block';
-            } else {
-                document.getElementById('confirmModal').style.display = 'block';
-            }
+            document.getElementById('confirmModal').style.display = 'block';
         }
 
         function closeModal() {
@@ -248,18 +291,20 @@
             document.getElementById('errorModal').style.display = 'none';
         }
 
-        document.getElementById('confirmYes').addEventListener('click', () => {
-            coins = 0;
-            coinsPerTap = 1;
-            upgradeCost = 1000;
-            updateCoinCount();
-            saveToLocalStorage();
-            closeModal();
-        });
+        document.getElementById('confirmYes').onclick = () => {
+            if (coins > 0) {
+                coins = 0;
+                updateCoinCount();
+                saveToLocalStorage();
+                closeModal();
+            } else {
+                document.getElementById('errorModal').style.display = 'block';
+            }
+        }
 
-        document.getElementById('confirmNo').addEventListener('click', () => {
+        document.getElementById('confirmNo').onclick = () => {
             closeModal();
-        });
+        }
 
         updateCoinCount();
     </script>
