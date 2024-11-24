@@ -40,7 +40,7 @@
         #coinCount {
             font-size: 48px;
             font-weight: bold;
-            color: #ffea00;
+            color: #ffae00;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
         }
 
@@ -49,7 +49,7 @@
             cursor: pointer;
             background-color: transparent;
             border: none;
-            outline: none; /* Убираем обводку по умолчанию */
+            outline: none;
             position: relative;
         }
 
@@ -65,23 +65,24 @@
         }
 
         button:focus {
-            outline: none; /* Убираем обводку при фокусе */
+            outline: none;
         }
 
         #inviteButton, #upgradeButton, #resetButton {
-            background-color: #fff;
-            color: #000;
+            background-color: #ffa500;
+            color: #fff;
             font-weight: bold;
             border-radius: 8px;
             padding: 10px 20px;
             margin-top: 10px;
             box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
             cursor: pointer;
-            transition: transform 0.2s ease;
+            transition: transform 0.2s ease, background-color 0.2s ease;
         }
 
         #inviteButton:hover, #upgradeButton:hover, #resetButton:hover {
             transform: scale(1.1);
+            background-color: #ff8c00;
         }
 
         .rest {
@@ -114,7 +115,7 @@
         }
 
         .modal-button {
-            background-color: #4CAF50;
+            background-color: #ffa500;
             color: white;
             border: none;
             border-radius: 4px;
@@ -125,21 +126,21 @@
         }
 
         .modal-button:hover {
-            background-color: #45a049;
+            background-color: #ff8c00;
         }
 
         .plus-one {
             position: absolute;
             font-size: 24px;
             font-weight: bold;
-            color: #fff;
+            color: #fff; /* Белый цвет */
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
             opacity: 0;
             pointer-events: none;
         }
 
         .plus-one.animate {
-            animation: riseAndFade 1s ease-out forwards;
+            animation: riseAndFade 0.5s ease forwards;
         }
 
         @keyframes riseAndFade {
@@ -147,8 +148,8 @@
                 transform: translateY(0);
                 opacity: 1;
             }
-            50% {
-                transform: translateY(-30px);
+            80% {
+                transform: translateY(-40px);
                 opacity: 1;
             }
             100% {
@@ -156,6 +157,7 @@
                 opacity: 0;
             }
         }
+
     </style>
 </head>
 <body>
@@ -197,9 +199,9 @@
 
     <div id="errorModal" class="modal">
         <div class="modal-content">
-            <h2>Ошибка!</h2>
-            <p>У вас и так 0 монеток IslomCoins!</p>
-            <button id="errorClose" class="modal-button" onclick="closeModal()">Продолжить</button>
+            <h2>Упс!</h2>
+            <p>У вас и так на счету 0 монет!</p>
+            <button id="errorClose" class="modal-button" onclick="closeModal()">Ок</button>
         </div>
     </div>
 
@@ -230,18 +232,23 @@
         function animateCoinTap(event) {
             const coinImg = document.querySelector('button img');
             const rect = coinImg.getBoundingClientRect();
-            const centerX = rect.width / 2;
-            const centerY = rect.height / 2;
             const clickX = event.clientX - rect.left;
             const clickY = event.clientY - rect.top;
-            const rotateX = ((clickY - centerY) / centerY) * 10;
-            const rotateY = ((clickX - centerX) / centerX) * -10;
 
-            coinImg.style.transition = "transform 0.2s ease";
-            coinImg.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            // Сжимаем монетку в точку касания
+            coinImg.style.transition = "transform 0.2s ease, width 0.2s, height 0.2s";
+            coinImg.style.transform = `scale(0)`;
+            coinImg.style.width = '20px';
+            coinImg.style.height = '20px';
+            coinImg.style.left = `${clickX - 10}px`;
+            coinImg.style.top = `${clickY - 10}px`;
 
             setTimeout(() => {
-                coinImg.style.transform = "perspective(1000px) rotateX(0) rotateY(0)";
+                coinImg.style.transform = "scale(1)";
+                coinImg.style.width = '200px';
+                coinImg.style.height = '200px';
+                coinImg.style.left = '0';
+                coinImg.style.top = '0';
             }, 200);
         }
 
@@ -255,64 +262,57 @@
             const container = document.querySelector('.container');
             const plusOne = document.createElement('div');
             plusOne.classList.add('plus-one');
-            plusOne.innerText = '1';
+            plusOne.innerText = '+1';
             container.appendChild(plusOne);
 
-            // Calculate click position relative to container
+            // Positioning
             const rect = container.getBoundingClientRect();
             const clickX = event.clientX - rect.left;
             const clickY = event.clientY - rect.top;
-
-            // Position the plus-one element
             plusOne.style.left = `${clickX}px`;
             plusOne.style.top = `${clickY}px`;
 
             // Trigger animation
-            requestAnimationFrame(() => {
+            setTimeout(() => {
                 plusOne.classList.add('animate');
-            });
+            }, 0);
 
-            // Remove element after animation
-            plusOne.addEventListener('animationend', () => {
+            // Remove the element after animation
+            setTimeout(() => {
                 plusOne.remove();
-            });
+            }, 500);
         }
 
-        function redirectToInvitePage() {
-            window.location.href = 'invite.html';
+        const redirectToInvitePage = () => {
+            window.location.href = 'https://example.com/invite';
         }
 
-        function redirectToBoostPage() {
-            window.location.href = 'boost.html';
+        const redirectToBoostPage = () => {
+            window.location.href = 'https://example.com/boost';
         }
 
-        function confirmReset() {
-            document.getElementById('confirmModal').style.display = 'block';
-
+        const confirmReset = () => {
+            const modal = document.getElementById('confirmModal');
+            modal.style.display = 'block';
             document.getElementById('confirmYes').onclick = () => {
                 coins = 0;
                 coinsPerTap = 1;
                 upgradeCost = 1000;
-                updateCoinCount();
                 saveToLocalStorage();
-                closeModal();
+                updateCoinCount();
+                modal.style.display = 'none';
             }
-
-            document.getElementById('confirmNo').onclick = closeModal;
+            document.getElementById('confirmNo').onclick = () => {
+                modal.style.display = 'none';
+            }
         }
 
-        function closeModal() {
-            document.querySelectorAll('.modal').forEach(modal => modal.style.display = 'none');
+        const closeModal = () => {
+            const modal = document.getElementById('errorModal');
+            modal.style.display = 'none';
         }
 
-        window.onload = updateCoinCount;
-
-        // Add event listener for keyboard interactions
-        document.addEventListener('keydown', (event) => {
-            if (event.key === 'Enter') {
-                clickButtonHandler(event);
-            }
-        });
+        updateCoinCount();
     </script>
 </body>
 </html>
