@@ -40,7 +40,7 @@
         #coinCount {
             font-size: 48px;
             font-weight: bold;
-            color: #ffae00;
+            color: #FFA500; /* Светло-оранжевый */
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
         }
 
@@ -58,6 +58,7 @@
             height: 200px;
             transition: transform 0.2s ease;
             filter: drop-shadow(0 0 0.5rem rgba(0, 0, 0, 0.8));
+            border-radius: 15px; /* Сохранение изгиба как в старом коде */
         }
 
         button:hover img {
@@ -69,8 +70,8 @@
         }
 
         #inviteButton, #upgradeButton, #resetButton {
-            background-color: #ffa500;
-            color: #fff;
+            background-color: #fff; /* Белый фон для кнопок */
+            color: #000;
             font-weight: bold;
             border-radius: 8px;
             padding: 10px 20px;
@@ -82,7 +83,7 @@
 
         #inviteButton:hover, #upgradeButton:hover, #resetButton:hover {
             transform: scale(1.1);
-            background-color: #ff8c00;
+            background-color: #f2f2f2;
         }
 
         .rest {
@@ -115,7 +116,7 @@
         }
 
         .modal-button {
-            background-color: #ffa500;
+            background-color: #FFA500; /* Светло-оранжевый */
             color: white;
             border: none;
             border-radius: 4px;
@@ -126,193 +127,79 @@
         }
 
         .modal-button:hover {
-            background-color: #ff8c00;
+            background-color: #e69500; /* Темный оттенок оранжевого при наведении */
         }
-
-        .plus-one {
-            position: absolute;
-            font-size: 24px;
-            font-weight: bold;
-            color: #fff; /* Белый цвет */
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .plus-one.animate {
-            animation: riseAndFade 0.5s ease forwards;
-        }
-
-        @keyframes riseAndFade {
-            0% {
-                transform: translateY(0);
-                opacity: 1;
-            }
-            80% {
-                transform: translateY(-40px);
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(-60px);
-                opacity: 0;
-            }
-        }
-
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>IslomCoin</h1>
-        </div>
-
+        <div class="header">IslomCoin</div>
         <div class="coins">
-            <h2>Монеты: <span id="coinCount">0</span></h2>
-            <button id="clickButton" onclick="clickButtonHandler(event)">
-                <img src="coin.png" alt="Монетка">
-            </button>
+            <div id="coinCount">0</div>
         </div>
 
-        <button id="inviteButton" onclick="redirectToInvitePage()">
-            Пригласить
+        <button id="inviteButton" onclick="window.location.href='invite.html'">
+            <img src="coin.png" alt="Coin">
         </button>
-
-        <button id="upgradeButton" onclick="redirectToBoostPage()">
-            Улучшение
+        <button id="upgradeButton" onclick="window.location.href='upgrade.html'">
+            <img src="upgrade.png" alt="Upgrade">
         </button>
-
-        <button id="resetButton" onclick="confirmReset()">Сбросить монеты и улучшение тапа</button>
+        <button id="resetButton" onclick="window.location.href='reset.html'">
+            <img src="reset.png" alt="Reset">
+        </button>
 
         <div class="rest">
-            <p id="restMessage"></p>
+            <p>Заработайте монетки, чтобы активировать действия.</p>
         </div>
     </div>
 
-    <div id="confirmModal" class="modal">
+    <!-- Pop-up modal -->
+    <div id="modal" class="modal">
         <div class="modal-content">
-            <h2>Подтверждение</h2>
-            <p>Вы уверены что хотите сбросить все свои монеты и улучшение тапа? Монеты и улучшения больше нельзя вернуть.</p>
-            <button id="confirmYes" class="modal-button">Да</button>
-            <button id="confirmNo" class="modal-button">Нет</button>
-        </div>
-    </div>
-
-    <div id="errorModal" class="modal">
-        <div class="modal-content">
-            <h2>Упс!</h2>
-            <p>У вас и так на счету 0 монет!</p>
-            <button id="errorClose" class="modal-button" onclick="closeModal()">Ок</button>
+            <p>У вас нет монет! Попробуйте заработать монеты, чтобы продолжить.</p>
+            <button class="modal-button" onclick="closeModal()">Закрыть</button>
         </div>
     </div>
 
     <script>
-        let coins = parseInt(localStorage.getItem('coins')) || 0;
-        let coinsPerTap = parseInt(localStorage.getItem('coinsPerTap')) || 1;
-        let upgradeCost = parseInt(localStorage.getItem('upgradeCost')) || 1000;
+        let coinCount = 0;
 
-        const updateCoinCount = () => {
-            document.getElementById('coinCount').innerText = coins.toLocaleString('ru-RU');
-        }
-
-        const clickButtonHandler = (event) => {
-            coins += coinsPerTap;
-            updateCoinCount();
-            saveToLocalStorage();
-            animateCoinTap(event);
-            vibrate();
-            showPlusOneAnimation(event);
-        }
-
-        const saveToLocalStorage = () => {
-            localStorage.setItem('coins', coins);
-            localStorage.setItem('coinsPerTap', coinsPerTap);
-            localStorage.setItem('upgradeCost', upgradeCost);
-        }
-
-        function animateCoinTap(event) {
-            const coinImg = document.querySelector('button img');
-            const rect = coinImg.getBoundingClientRect();
-            const clickX = event.clientX - rect.left;
-            const clickY = event.clientY - rect.top;
-
-            // Сжимаем монетку в точку касания
-            coinImg.style.transition = "transform 0.2s ease, width 0.2s, height 0.2s";
-            coinImg.style.transform = `scale(0)`;
-            coinImg.style.width = '20px';
-            coinImg.style.height = '20px';
-            coinImg.style.left = `${clickX - 10}px`;
-            coinImg.style.top = `${clickY - 10}px`;
-
-            setTimeout(() => {
-                coinImg.style.transform = "scale(1)";
-                coinImg.style.width = '200px';
-                coinImg.style.height = '200px';
-                coinImg.style.left = '0';
-                coinImg.style.top = '0';
-            }, 200);
-        }
-
-        function vibrate() {
-            if ("vibrate" in navigator) {
-                navigator.vibrate(50);
+        function updateCoins() {
+            document.getElementById('coinCount').textContent = coinCount;
+            if (coinCount === 0) {
+                showModal();
             }
         }
 
-        function showPlusOneAnimation(event) {
-            const container = document.querySelector('.container');
-            const plusOne = document.createElement('div');
-            plusOne.classList.add('plus-one');
-            plusOne.innerText = '+1';
-            container.appendChild(plusOne);
-
-            // Positioning
-            const rect = container.getBoundingClientRect();
-            const clickX = event.clientX - rect.left;
-            const clickY = event.clientY - rect.top;
-            plusOne.style.left = `${clickX}px`;
-            plusOne.style.top = `${clickY}px`;
-
-            // Trigger animation
-            setTimeout(() => {
-                plusOne.classList.add('animate');
-            }, 0);
-
-            // Remove the element after animation
-            setTimeout(() => {
-                plusOne.remove();
-            }, 500);
+        function showModal() {
+            document.getElementById('modal').style.display = 'block';
         }
 
-        const redirectToInvitePage = () => {
-            window.location.href = 'https://example.com/invite';
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
         }
 
-        const redirectToBoostPage = () => {
-            window.location.href = 'https://example.com/boost';
-        }
+        // Добавление монеты (например, через кнопку)
+        document.getElementById('inviteButton').addEventListener('click', function() {
+            coinCount++;
+            updateCoins();
+        });
 
-        const confirmReset = () => {
-            const modal = document.getElementById('confirmModal');
-            modal.style.display = 'block';
-            document.getElementById('confirmYes').onclick = () => {
-                coins = 0;
-                coinsPerTap = 1;
-                upgradeCost = 1000;
-                saveToLocalStorage();
-                updateCoinCount();
-                modal.style.display = 'none';
+        document.getElementById('upgradeButton').addEventListener('click', function() {
+            coinCount++;
+            updateCoins();
+        });
+
+        document.getElementById('resetButton').addEventListener('click', function() {
+            if (coinCount === 0) {
+                showModal();
+            } else {
+                coinCount = 0;
+                updateCoins();
             }
-            document.getElementById('confirmNo').onclick = () => {
-                modal.style.display = 'none';
-            }
-        }
+        });
 
-        const closeModal = () => {
-            const modal = document.getElementById('errorModal');
-            modal.style.display = 'none';
-        }
-
-        updateCoinCount();
+        updateCoins(); // Инициализация начального состояния
     </script>
 </body>
 </html>
