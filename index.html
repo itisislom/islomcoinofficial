@@ -40,7 +40,7 @@
         #coinCount {
             font-size: 48px;
             font-weight: bold;
-            color: #FFA500; /* Светло-оранжевый */
+            color: #ffea00;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
         }
 
@@ -49,7 +49,7 @@
             cursor: pointer;
             background-color: transparent;
             border: none;
-            outline: none;
+            outline: none; /* Убираем обводку по умолчанию */
             position: relative;
         }
 
@@ -58,7 +58,6 @@
             height: 200px;
             transition: transform 0.2s ease;
             filter: drop-shadow(0 0 0.5rem rgba(0, 0, 0, 0.8));
-            border-radius: 15px; /* Сохранение изгиба как в старом коде */
         }
 
         button:hover img {
@@ -66,11 +65,11 @@
         }
 
         button:focus {
-            outline: none;
+            outline: none; /* Убираем обводку при фокусе */
         }
 
         #inviteButton, #upgradeButton, #resetButton {
-            background-color: #fff; /* Белый фон для кнопок */
+            background-color: #fff;
             color: #000;
             font-weight: bold;
             border-radius: 8px;
@@ -78,12 +77,11 @@
             margin-top: 10px;
             box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
             cursor: pointer;
-            transition: transform 0.2s ease, background-color 0.2s ease;
+            transition: transform 0.2s ease;
         }
 
         #inviteButton:hover, #upgradeButton:hover, #resetButton:hover {
             transform: scale(1.1);
-            background-color: #f2f2f2;
         }
 
         .rest {
@@ -116,7 +114,7 @@
         }
 
         .modal-button {
-            background-color: #FFA500; /* Светло-оранжевый */
+            background-color: #4CAF50;
             color: white;
             border: none;
             border-radius: 4px;
@@ -127,79 +125,194 @@
         }
 
         .modal-button:hover {
-            background-color: #e69500; /* Темный оттенок оранжевого при наведении */
+            background-color: #45a049;
+        }
+
+        .plus-one {
+            position: absolute;
+            font-size: 24px;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .plus-one.animate {
+            animation: riseAndFade 1s ease-out forwards;
+        }
+
+        @keyframes riseAndFade {
+            0% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+            50% {
+                transform: translateY(-30px);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-60px);
+                opacity: 0;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">IslomCoin</div>
-        <div class="coins">
-            <div id="coinCount">0</div>
+        <div class="header">
+            <h1>IslomCoin</h1>
         </div>
 
-        <button id="inviteButton" onclick="window.location.href='invite.html'">
-            <img src="coin.png" alt="Coin">
-        </button>
-        <button id="upgradeButton" onclick="window.location.href='upgrade.html'">
-            <img src="upgrade.png" alt="Upgrade">
-        </button>
-        <button id="resetButton" onclick="window.location.href='reset.html'">
-            <img src="reset.png" alt="Reset">
+        <div class="coins">
+            <h2>Монеты: <span id="coinCount">0</span></h2>
+            <button id="clickButton" onclick="clickButtonHandler(event)">
+                <img src="coin.png" alt="Монетка">
+            </button>
+        </div>
+
+        <button id="inviteButton" onclick="redirectToInvitePage()">
+            Пригласить
         </button>
 
+        <button id="upgradeButton" onclick="redirectToBoostPage()">
+            Улучшение
+        </button>
+
+        <button id="resetButton" onclick="confirmReset()">Сбросить монеты и улучшение тапа</button>
+
         <div class="rest">
-            <p>Заработайте монетки, чтобы активировать действия.</p>
+            <p id="restMessage"></p>
         </div>
     </div>
 
-    <!-- Pop-up modal -->
-    <div id="modal" class="modal">
+    <div id="confirmModal" class="modal">
         <div class="modal-content">
-            <p>У вас нет монет! Попробуйте заработать монеты, чтобы продолжить.</p>
-            <button class="modal-button" onclick="closeModal()">Закрыть</button>
+            <h2>Подтверждение</h2>
+            <p>Вы уверены что хотите сбросить все свои монеты и улучшение тапа? Монеты и улучшения больше нельзя вернуть.</p>
+            <button id="confirmYes" class="modal-button">Да</button>
+            <button id="confirmNo" class="modal-button">Нет</button>
+        </div>
+    </div>
+
+    <div id="errorModal" class="modal">
+        <div class="modal-content">
+            <h2>Ошибка!</h2>
+            <p>У вас и так 0 монеток IslomCoins!</p>
+            <button id="errorClose" class="modal-button" onclick="closeModal()">Продолжить</button>
         </div>
     </div>
 
     <script>
-        let coinCount = 0;
+        let coins = parseInt(localStorage.getItem('coins')) || 0;
+        let coinsPerTap = parseInt(localStorage.getItem('coinsPerTap')) || 1;
+        let upgradeCost = parseInt(localStorage.getItem('upgradeCost')) || 1000;
 
-        function updateCoins() {
-            document.getElementById('coinCount').textContent = coinCount;
-            if (coinCount === 0) {
-                showModal();
+        const updateCoinCount = () => {
+            document.getElementById('coinCount').innerText = coins.toLocaleString('ru-RU');
+        }
+
+        const clickButtonHandler = (event) => {
+            coins += coinsPerTap;
+            updateCoinCount();
+            saveToLocalStorage();
+            animateCoinTap(event);
+            vibrate();
+            showPlusOneAnimation(event);
+        }
+
+        const saveToLocalStorage = () => {
+            localStorage.setItem('coins', coins);
+            localStorage.setItem('coinsPerTap', coinsPerTap);
+            localStorage.setItem('upgradeCost', upgradeCost);
+        }
+
+        function animateCoinTap(event) {
+            const coinImg = document.querySelector('button img');
+            const rect = coinImg.getBoundingClientRect();
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            const clickX = event.clientX - rect.left;
+            const clickY = event.clientY - rect.top;
+            const rotateX = ((clickY - centerY) / centerY) * 10;
+            const rotateY = ((clickX - centerX) / centerX) * -10;
+
+            coinImg.style.transition = "transform 0.2s ease";
+            coinImg.style.transform = perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg);
+
+            setTimeout(() => {
+                coinImg.style.transform = "perspective(1000px) rotateX(0) rotateY(0)";
+            }, 200);
+        }
+
+        function vibrate() {
+            if ("vibrate" in navigator) {
+                navigator.vibrate(50);
             }
         }
 
-        function showModal() {
-            document.getElementById('modal').style.display = 'block';
+        function showPlusOneAnimation(event) {
+            const container = document.querySelector('.container');
+            const plusOne = document.createElement('div');
+            plusOne.classList.add('plus-one');
+            plusOne.innerText = '1';
+            container.appendChild(plusOne);
+
+            // Calculate click position relative to container
+            const rect = container.getBoundingClientRect();
+            const clickX = event.clientX - rect.left;
+            const clickY = event.clientY - rect.top;
+
+            // Position the plus-one element
+            plusOne.style.left = ${clickX}px;
+            plusOne.style.top = ${clickY}px;
+
+            // Trigger animation
+            requestAnimationFrame(() => {
+                plusOne.classList.add('animate');
+            });
+
+            // Remove element after animation
+            plusOne.addEventListener('animationend', () => {
+                plusOne.remove();
+            });
+        }
+
+        function redirectToInvitePage() {
+            window.location.href = 'invite.html';
+        }
+
+        function redirectToBoostPage() {
+            window.location.href = 'boost.html';
+        }
+
+        function confirmReset() {
+            document.getElementById('confirmModal').style.display = 'block';
+
+            document.getElementById('confirmYes').onclick = () => {
+                coins = 0;
+                coinsPerTap = 1;
+                upgradeCost = 1000;
+                updateCoinCount();
+                saveToLocalStorage();
+                closeModal();
+            }
+
+            document.getElementById('confirmNo').onclick = closeModal;
         }
 
         function closeModal() {
-            document.getElementById('modal').style.display = 'none';
+            document.querySelectorAll('.modal').forEach(modal => modal.style.display = 'none');
         }
 
-        // Добавление монеты (например, через кнопку)
-        document.getElementById('inviteButton').addEventListener('click', function() {
-            coinCount++;
-            updateCoins();
-        });
+        window.onload = updateCoinCount;
 
-        document.getElementById('upgradeButton').addEventListener('click', function() {
-            coinCount++;
-            updateCoins();
-        });
-
-        document.getElementById('resetButton').addEventListener('click', function() {
-            if (coinCount === 0) {
-                showModal();
-            } else {
-                coinCount = 0;
-                updateCoins();
+        // Add event listener for keyboard interactions
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                clickButtonHandler(event);
             }
         });
-
-        updateCoins(); // Инициализация начального состояния
     </script>
 </body>
 </html>
